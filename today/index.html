@@ -1,0 +1,514 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘 내 상태 확인하기 | 맛스페이스</title>
+<meta name="description" content="60갑자 일주 아바타가 오늘의 기운을 알려드려요. 맛스페이스 오늘 내 상태 확인하기">
+<meta property="og:title" content="오늘 내 상태 확인하기 | 맛스페이스">
+<meta property="og:description" content="내 일주 아바타는 오늘 어떤 하루를 보낼까?">
+<meta name="theme-color" content="#151515">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<!-- 홈페이지 공통 스타일 (폰트 · 색 · 버튼 · 상단바 · 푸터) -->
+<link rel="stylesheet" href="../style.css">
+<style>
+  /* =========================================================
+     오늘 내 상태 확인하기 — 홈페이지 디자인(블랙 · 화이트 · 옐로우)에 맞춘 스타일
+     ========================================================= */
+  .today-hero .container { position: relative; }
+  .today-chip { display: inline-block; margin-top: 24px; font-size: 14px; font-weight: 700; color: var(--paper);
+    background: rgba(255,255,255,.1); padding: 8px 16px; border-radius: 999px; white-space: nowrap; }
+  .today-hero h1 { margin-bottom: 14px; }
+  .today-hero p#heroP { line-height: 1.65; }
+  .t-body { padding-top: 64px; }
+
+  /* 일주 고르기 */
+  .today-app .picker { background: var(--gray-50); border-radius: var(--radius-lg); padding: 36px; margin-bottom: 64px; }
+  .today-app .picker-head { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: space-between; margin-bottom: 18px; }
+  .today-app .picker-head h2 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+  .today-app .find { font-size: 14px; font-weight: 800; color: var(--ink); text-decoration: none; border-bottom: 3px solid var(--yellow); }
+  .today-app .search { width: 100%; padding: 15px 22px; font-size: 16px; border-radius: 999px; border: 2px solid var(--gray-100);
+    background: var(--paper); color: var(--ink); font-family: inherit; outline: none; transition: border-color .2s; }
+  .today-app .search:focus { border-color: var(--ink); }
+  .today-app .tabs { display: flex; gap: 8px; overflow-x: auto; padding: 16px 0 4px; scrollbar-width: none; }
+  .today-app .tabs::-webkit-scrollbar { display: none; }
+  .today-app .tab { flex: 0 0 auto; padding: 9px 16px; border-radius: 999px; border: 2px solid var(--gray-100); background: var(--paper);
+    color: var(--gray-600); font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; transition: .2s; }
+  .today-app .tab:hover { border-color: var(--ink); color: var(--ink); }
+  .today-app .tab.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .today-app .group-title { font-size: 14px; font-weight: 800; color: var(--gray-600); margin: 26px 0 12px; }
+  .today-app .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+  .today-app .card { display: block; width: 100%; background: var(--paper); border: 2px solid transparent; border-radius: 20px;
+    padding: 14px 8px 12px; text-align: center; cursor: pointer; font-family: inherit; color: inherit;
+    transition: transform .2s ease, background .2s ease, border-color .2s ease; }
+  .today-app .card:hover { transform: translateY(-4px); background: var(--yellow); border-color: var(--ink); }
+  .today-app .card img { width: 100%; height: 112px; object-fit: contain; display: block; margin-bottom: 8px; }
+  .today-app .card b { display: block; font-size: 16px; font-weight: 800; }
+  .today-app .card span { font-size: 12px; color: var(--gray-600); line-height: 1.35; display: block; word-break: keep-all; }
+  .today-app .card:hover span { color: var(--ink); }
+  .today-app .empty { color: var(--gray-400); text-align: center; padding: 40px 0; }
+
+  /* 결과 */
+  .today-app .result { display: grid; grid-template-columns: 1.1fr 1fr; gap: 20px; margin-bottom: 64px; }
+  .stage-card { position: relative; border-radius: var(--radius-lg); overflow: hidden; min-height: 520px;
+    background: radial-gradient(120% 80% at 50% 0%, #34340f 0%, #1d1d1b 55%, #151515 100%); }
+  .stage-card:before { content: ""; position: absolute; inset: 0; background-image: radial-gradient(rgba(255,255,255,.55) 1px, transparent 1.5px);
+    background-size: 46px 46px; opacity: .12; pointer-events: none; }
+  .ground { position: absolute; left: 10%; right: 10%; bottom: 30px; height: 40px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,255,0,.2), transparent 70%); }
+  .bubble { position: absolute; left: 50%; top: 22px; transform: translateX(-50%); width: min(86%, 380px);
+    background: var(--paper); color: var(--ink); border-radius: 22px; padding: 16px 18px; box-shadow: 0 10px 30px rgba(0,0,0,.35); z-index: 3;
+    animation: pop .4s cubic-bezier(.2,1.4,.4,1); }
+  .bubble:after { content: ""; position: absolute; left: 50%; bottom: -8px; width: 16px; height: 16px; background: var(--paper); transform: translateX(-50%) rotate(45deg); }
+  .bubble .tag { font-size: 12px; font-weight: 800; color: var(--gray-600); margin-bottom: 6px; }
+  .bubble .tag b { color: var(--ink); background: var(--yellow); padding: 0 .3em; border-radius: .35em; }
+  .bubble .line { font-size: 17px; font-weight: 800; line-height: 1.45; letter-spacing: -.4px; word-break: keep-all; }
+  @keyframes pop { from { transform: translateX(-50%) scale(.85); opacity: 0 } to { transform: translateX(-50%) scale(1); opacity: 1 } }
+
+  .char { position: absolute; left: 50%; bottom: 30px; transform: translateX(-50%); width: 82%; height: 380px; display: flex; justify-content: center; align-items: flex-end; z-index: 2; }
+  .body { position: relative; height: 100%; display: flex; align-items: flex-end; justify-content: center; transform-origin: 50% 100%; cursor: pointer; }
+  .body img { height: 100%; width: auto; max-width: none; display: block; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); user-select: none; -webkit-user-drag: none; }
+  .twin { position: absolute; bottom: 0; left: 50%; height: 100%; opacity: 0; pointer-events: none; transform-origin: 50% 100%; }
+  .twin img { height: 85%; width: auto; max-width: none; filter: brightness(.8) opacity(.7); }
+  .fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 4; }
+  .p { position: absolute; font-size: 26px; }
+  .rise { animation: rise 2.6s ease-out forwards; }
+  .fall { animation: fall 2.6s ease-in forwards; }
+  .zz { font-weight: 900; color: var(--yellow); font-family: Arial, sans-serif; animation: zz 3s ease-out forwards; }
+  @keyframes rise { 0% { transform: translate(0,0) scale(.6); opacity: 0 } 15% { opacity: 1 } 100% { transform: translate(var(--dx), -160px) scale(1.1); opacity: 0 } }
+  @keyframes fall { 0% { transform: translate(0,-40px) rotate(0); opacity: 0 } 15% { opacity: 1 } 85% { opacity: 1 } 100% { transform: translate(var(--dx), 260px) rotate(200deg); opacity: 0 } }
+  @keyframes zz { 0% { transform: translate(0,0) scale(.5); opacity: 0 } 20% { opacity: 1 } 100% { transform: translate(50px,-130px) scale(1.5); opacity: 0 } }
+  .hint { position: absolute; right: 18px; bottom: 14px; font-size: 12px; color: rgba(255,255,255,.45); z-index: 3; }
+
+  /* 십성 연출 (원본 그대로) */
+  .s-비견 .twin { opacity: 1; animation: twin 2.4s ease-in-out infinite; }
+  .s-비견 .body { animation: stare 2.4s ease-in-out infinite; }
+  @keyframes twin { 0%,100% { transform: translateX(-118%) scaleX(-1) } 50% { transform: translateX(-108%) scaleX(-1) } }
+  @keyframes stare { 0%,100% { transform: translateX(22%) } 50% { transform: translateX(14%) } }
+  .s-겁재 .body { animation: look 3s steps(1) infinite, jitter .25s linear infinite; }
+  @keyframes look { 0%,45% { scale: 1 1 } 50%,95% { scale: -1 1 } }
+  @keyframes jitter { 0%,100% { translate: 0 0 } 50% { translate: 1px 0 } }
+  .s-식신 .body { animation: bounce .9s cubic-bezier(.3,0,.5,1) infinite; }
+  @keyframes bounce { 0%,100% { transform: translateY(0) scale(1.03,.97) } 45% { transform: translateY(-20px) scale(.98,1.03) } }
+  .s-상관 .body { animation: talk .18s linear infinite; }
+  @keyframes talk { 0%,100% { transform: rotate(-2.5deg) } 50% { transform: rotate(2.5deg) translateY(-2px) } }
+  .s-편재 .body { animation: hunt 9s ease-in-out infinite; }
+  @keyframes hunt {
+    0%,30% { transform: translateX(0) translateY(0) } 33% { transform: translateX(0) translateY(-12px) }
+    45% { transform: translateX(-45%) translateY(0) rotate(-6deg) } 50% { transform: translateX(-45%) translateY(-10px) }
+    62% { transform: translateX(45%) translateY(0) rotate(6deg) } 67% { transform: translateX(45%) translateY(-10px) }
+    80%,100% { transform: translateX(0) translateY(0) } }
+  .s-정재 .body { animation: nod 2.2s ease-in-out infinite; }
+  @keyframes nod { 0%,100% { transform: rotate(0) } 30% { transform: rotate(4deg) translateY(2px) } 60% { transform: rotate(0) } }
+  .s-편관 .body { transform-origin: 50% 80%; transform: translateY(-22%) rotate(-82deg); animation: breathe 3.2s ease-in-out infinite; }
+  @keyframes breathe { 0%,100% { scale: 1 1 } 50% { scale: 1.03 1.01 } }
+  .s-정관 .body { animation: attention 4s ease-in-out infinite; }
+  @keyframes attention { 0%,80%,100% { transform: translateY(0) } 85% { transform: translateY(-10px) scale(.98,1.04) } 90% { transform: translateY(0) } }
+  .s-편인 .body { animation: sway 5s ease-in-out infinite; }
+  @keyframes sway { 0%,100% { transform: rotate(-4deg) } 50% { transform: rotate(4deg) } }
+  .s-정인 .body { animation: cozy 3.6s ease-in-out infinite; }
+  @keyframes cozy { 0%,100% { transform: scale(1,1) } 50% { transform: scale(1.03,.98) } }
+  .poke .body { animation: poke .5s ease-out !important; }
+  @keyframes poke { 0% { transform: scale(1) } 30% { transform: scale(1.12,.86) } 60% { transform: translateY(-26px) scale(.95,1.06) } 100% { transform: none } }
+
+  /* 정보 패널 */
+  .today-app .info { background: var(--gray-50); border-radius: var(--radius-lg); padding: 30px; display: flex; flex-direction: column; gap: 18px; }
+  .who { display: flex; align-items: center; gap: 14px; }
+  .who img { width: 60px; height: 60px; object-fit: contain; background: var(--paper); border-radius: 18px; padding: 4px; }
+  .who .name { font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+  .who .sub { font-size: 13px; color: var(--gray-600); margin-top: 2px; }
+  .today-app .desc { margin: -4px 0 0; font-size: 14px; line-height: 1.6; color: var(--gray-600); font-style: italic; }
+  .daynav { display: flex; align-items: center; justify-content: space-between; background: var(--paper); border-radius: 999px; padding: 6px; }
+  .daynav button { background: transparent; border: 0; color: var(--gray-600); font-size: 13px; font-weight: 800; padding: 10px 14px; border-radius: 999px; cursor: pointer; font-family: inherit; white-space: nowrap; transition: .2s; }
+  .daynav button:hover { color: var(--ink); background: var(--yellow); }
+  .daynav .d { font-weight: 800; font-size: 15px; text-align: center; }
+  .daynav .d small { display: block; font-size: 12px; color: var(--gray-600); font-weight: 700; margin-top: 2px; }
+  .kv { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kv div { background: var(--paper); border-radius: 18px; padding: 14px 16px; }
+  .kv span { display: block; font-size: 12px; color: var(--gray-600); margin-bottom: 4px; }
+  .kv b { font-size: 17px; font-weight: 800; }
+  .kv b.hl { background: var(--yellow); padding: 0 .3em; border-radius: .35em; }
+  .meaning { font-size: 15px; line-height: 1.7; color: var(--gray-600); margin: 0; word-break: keep-all; }
+  .meaning b { color: var(--ink); }
+  .today-app .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+  .today-app .actions .btn { flex: 1 1 auto; font-family: inherit; }
+
+  /* 세계관 소개 */
+  .today-app .lore { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; padding-bottom: 100px; }
+  .today-app .lore div { background: var(--gray-50); border-radius: var(--radius-md); padding: 26px; }
+  .today-app .lore h3 { margin: 0 0 8px; font-size: 16px; font-weight: 800; }
+  .today-app .lore p { margin: 0; font-size: 14px; line-height: 1.65; color: var(--gray-600); word-break: keep-all; }
+
+  @media (max-width: 960px) {
+    .today-app .result { grid-template-columns: 1fr; }
+    .today-app .lore { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .t-body { padding-top: 40px; }
+    .today-app .picker { padding: 22px 18px; border-radius: 28px; }
+    .today-app .picker-head h2 { font-size: 20px; }
+    .today-app .grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; }
+    .today-app .card img { height: 88px; }
+    .stage-card { min-height: 440px; border-radius: 28px; }
+    .char { height: 330px; }
+    .today-app .info { padding: 22px; border-radius: 28px; }
+    .daynav button { padding: 10px 10px; }
+    .today-app .actions .btn { flex: 1 1 100%; }
+    .today-app .lore { padding-bottom: 72px; }
+  }
+  @media (max-width: 520px) { .today-chip { display: none; } }
+  @media (prefers-reduced-motion: reduce) { .body, .twin, .p { animation: none !important; } }
+</style>
+</head>
+<body data-root="../" data-page="today" data-title-en="Check My Vibe Today | Mat Space">
+<div id="site-header"></div>
+
+<main class="today-app">
+  <!-- 상단 타이틀 (홈페이지 공통 디자인) -->
+  <section class="page-hero today-hero">
+    <div class="blob blob-1" aria-hidden="true"></div>
+    <div class="container">
+      <p class="eyebrow" id="eyebrow"></p>
+      <h1 id="h1"></h1>
+      <p id="heroP"></p>
+      <div class="today-chip" id="todayChip"></div>
+    </div>
+  </section>
+
+  <!-- 원래 페이지의 상단 링크·언어 버튼: 기능 유지를 위해 남겨두고 화면에서는 숨김.
+       언어 전환은 홈페이지 상단의 KO / EN 버튼으로 해요. -->
+  <div hidden><a id="homeLink" href="../"></a><div class="langs"><button id="lk">KO</button><button id="le">EN</button></div></div>
+
+  <div class="container t-body">
+    <!-- 일주 고르기 -->
+    <section class="picker" id="picker" hidden>
+      <div class="picker-head">
+        <h2 id="pickTitle"></h2>
+        <a class="find" id="findLink" target="_blank" rel="noopener"></a>
+      </div>
+      <input class="search" id="q" type="text" autocomplete="off">
+      <div class="tabs" id="tabs"></div>
+      <div id="list"></div>
+    </section>
+
+    <!-- 결과 -->
+    <section class="result" id="result" hidden>
+      <div class="stage-card" id="stage">
+        <div class="bubble" id="bubble"><div class="tag" id="tag"></div><div class="line" id="line"></div></div>
+        <div class="ground"></div>
+        <div class="char">
+          <div class="twin"><img id="twinImg" alt=""></div>
+          <div class="body" id="body"><img id="img" alt=""></div>
+        </div>
+        <div class="fx" id="fx"></div>
+        <div class="hint" id="hint"></div>
+      </div>
+
+      <div class="info">
+        <div class="who">
+          <img id="whoImg" alt="">
+          <div><div class="name" id="whoName"></div><div class="sub" id="whoSub"></div></div>
+        </div>
+        <p class="desc" id="whoDesc" hidden></p>
+        <div class="daynav">
+          <button id="prev"></button>
+          <div class="d" id="dayLabel"></div>
+          <button id="next"></button>
+        </div>
+        <div class="kv">
+          <div><span id="kvDayL"></span><b id="kvDay"></b></div>
+          <div><span id="kvSipL"></span><b class="hl" id="kvSip"></b></div>
+          <div><span id="kvElemL"></span><b id="kvElem"></b></div>
+          <div><span id="kvSceneL"></span><b id="kvScene"></b></div>
+        </div>
+        <p class="meaning" id="meaning"></p>
+        <div class="actions">
+          <button class="btn btn-yellow" id="share"></button>
+          <button class="btn btn-line" id="change"></button>
+          <a class="btn btn-line" id="insta" target="_blank" rel="noopener"></a>
+          <a class="btn btn-line" id="pcDown" target="_blank" rel="noopener" hidden></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="lore">
+      <div><h3 id="l1h"></h3><p id="l1p"></p></div>
+      <div><h3 id="l2h"></h3><p id="l2p"></p></div>
+      <div><h3 id="l3h"></h3><p id="l3p"></p></div>
+    </section>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+<div class="toast" id="toast"></div>
+
+<!-- 홈페이지 공통 상단바 · 푸터 -->
+<script src="../config.js"></script>
+<script src="../layout.js"></script>
+
+<!-- ===== 오늘 내 상태 확인하기 (원본 기능 그대로) ===== -->
+<script src="saju.js"></script>
+<script src="i18n.js"></script>
+<script src="lines.js"></script>
+<script>
+/* ===== 운영 설정 ===== */
+const CONFIG = {
+  FIND_URL: 'https://matspace.vercel.app/',
+  INSTAGRAM_URL: 'https://www.instagram.com/matspace.official/',
+  PC_DOWNLOAD_URL: ''   // PC 설치파일 링크가 생기면 여기에 넣으면 버튼이 나타납니다
+};
+
+/* ===== 화면 문구 (한국어 / English) — 자유롭게 수정 가능 ===== */
+const TXT = {
+  ko: {
+    title: '오늘 내 상태 확인하기 | 맛스페이스', home: '← 맛스페이스 홈', eyebrow: 'MAT SPACE · 60갑자 아바타',
+    h1: '오늘 내 상태 확인하기', heroP: '천간의 기운을 든 지지 동물, 나의 일주 아바타가<br>오늘 어떤 하루를 보내는지 보여드려요.',
+    pickTitle: '나의 일주를 골라주세요', find: '내 일주를 모르면? 일주 찾기 →', search: '일주 검색 (예: 병인)', all: '전체',
+    tab: (s) => I18N.UI.ko.stemTab(s).replace(' 일간', ''), group: (s) => I18N.UI.ko.stemGroup(s),
+    empty: '찾는 일주가 없어요. 두 글자로 입력해 보세요 (예: 병인)', hint: '아바타를 눌러보세요',
+    prev: '◀ 어제', next: '내일 ▶', kvDay: '오늘의 일진', kvSip: '나에게 오는 기운', kvElem: '기운의 오행', kvScene: '아바타의 상황',
+    share: '내 아바타 링크 복사', change: '일주 바꾸기', insta: '인스타그램 놀러가기', pc: 'PC 바탕화면 버전 받기',
+    copied: '링크를 복사했어요', copyPrompt: '이 링크를 복사하세요',
+    week: ['일','월','화','수','목','금','토'],
+    fmt: (d, w) => `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} (${w[d.getDay()]})`,
+    when: (o) => o === 0 ? '오늘' : o === -1 ? '어제' : o === 1 ? '내일' : (o > 0 ? `${o}일 뒤` : `${-o}일 전`),
+    chip: (f, day) => `오늘 ${f} · ${day.name}일`,
+    dayShort: (day) => `${day.name}일`,
+    whoSub: (g) => `${SAJU.title(g)} · ${I18N.UI.ko.stemGroup(g[0])}`,
+    tag: (w, day, sip, el) => `${w} ${day.name}일 · <b>${sip}</b>(${el}) 날`,
+    meaning: (day, el, sip, m) => `<b>${day.stem}${el}</b>의 기운이 나에게 <b>${sip}</b>${/재$/.test(sip) ? '로' : '으로'} 들어와요. ${m}`,
+    lore: [['✦ 천간은 손에 든 물상', '갑목은 큰나무, 병화는 태양, 임수는 바다처럼 일간의 기운을 아바타가 손에 들거나 품고 있어요.'],
+           ['✦ 지지는 동물과 본래의 색', '인목 호랑이는 청색, 오화 말은 적색처럼 지지 동물은 자기 오행의 색을 그대로 지녀요.'],
+           ['✦ 매일 바뀌는 상황', '오늘 일진의 천간이 나에게 어떤 십성인지에 따라 아바타가 눕고, 뛰고, 차렷하며 하루를 보내요.']],
+    MEANING: {
+      '비견': '나와 같은 기운이 들어오는 날. 든든한 내 편이 생기지만, 은근한 경쟁도 함께 와요.',
+      '겁재': '내 것을 나눠야 하는 기운의 날. 지갑과 마음 단속을 조금 더 해두세요.',
+      '식신': '먹고, 즐기고, 표현하는 날. 여유를 부리는 만큼 복이 따라와요.',
+      '상관': '말과 끼가 넘치는 날. 한마디 더 하기 전에 한 박자 쉬어가면 좋아요.',
+      '편재': '크게 움직이고 벌리는 날. 기회는 잡되 충동적인 지출은 조심!',
+      '정재': '차곡차곡 쌓는 날. 작고 성실한 움직임이 확실하게 남아요.',
+      '편관': '압박과 부담이 들어오는 날. 무리하지 말고 쉬어가는 게 이기는 거예요.',
+      '정관': '규칙과 책임의 날. 단정하게 차려입고 약속을 지키면 인정받아요.',
+      '편인': '생각이 많아지는 날. 멍때리는 시간도 영감이 될 수 있어요.',
+      '정인': '도움과 보살핌을 받는 날. 기대고 배우는 것도 실력이에요.'
+    },
+    SCENE: { '비견':'째려보기 대결','겁재':'뺏길까 봐 두리번','식신':'신나서 통통','상관':'수다 폭주','편재':'사냥 출동',
+      '정재':'차곡차곡 저금','편관':'드러누움','정관':'넥타이 매고 차렷','편인':'멍때리는 중','정인':'포근하게 받기만' }
+  },
+  en: {
+    title: 'Check My Vibe Today | Mat Space', home: '← Mat Space Home', eyebrow: 'MAT SPACE · 60 GAPJA AVATARS',
+    h1: 'Check My Vibe Today', heroP: 'Your Ilju avatar — a zodiac animal holding its heavenly-stem energy —<br>shows you what kind of day you\'re in for.',
+    pickTitle: 'Choose your Ilju (Day Pillar)', find: "Don't know your Ilju? Find it →", search: 'Search (e.g. ST, Sun Tiger, Tiger)', all: 'All',
+    tab: (s) => I18N.UI.en.stemTab(s), group: (s) => I18N.UI.en.stemGroup(s),
+    empty: 'No match. Try a type like ST or an animal like Tiger.', hint: 'Tap the avatar',
+    prev: '◀ Yesterday', next: 'Tomorrow ▶', kvDay: "Today's day pillar", kvSip: 'Energy coming to me', kvElem: 'Element', kvScene: "Avatar's mood",
+    share: 'Copy my avatar link', change: 'Change Ilju', insta: 'Visit our Instagram', pc: 'Get the desktop version',
+    copied: 'Link copied!', copyPrompt: 'Copy this link',
+    week: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+    fmt: (d, w) => `${w[d.getDay()]}, ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`,
+    when: (o) => o === 0 ? 'Today' : o === -1 ? 'Yesterday' : o === 1 ? 'Tomorrow' : (o > 0 ? `In ${o} days` : `${-o} days ago`),
+    chip: (f, day) => `Today ${f} · ${I18N.iljuName(day.name, 'en')} day`,
+    dayShort: (day) => `${I18N.iljuName(day.name, 'en')} ${I18N.iljuHanja(day.name)}`,
+    whoSub: (g) => `${I18N.title(g, 'en')} · ${I18N.iljuHanja(g)}`,
+    tag: (w, day, sip, el) => `${w} · ${I18N.iljuName(day.name, 'en')} day · <b>${sip}</b> (${el})`,
+    meaning: (day, el, sip, m) => `<b>${I18N.iljuName(day.name, 'en').split('-')[0]} ${el}</b> energy comes to you as <b>${sip}</b>. ${m}`,
+    lore: [['✦ The Heavenly Stem is what they hold', 'Gap Wood is a big tree, Byeong Fire is the sun, Im Water is the ocean — each avatar holds or carries the energy of its Day Master.'],
+           ['✦ The Earthly Branch is the animal and its true color', 'The In (Wood) Tiger is blue-green and the O (Fire) Horse is red — each animal keeps the color of its own element.'],
+           ['✦ A new mood every day', "Depending on how today's stem relates to you (the Ten Gods), your avatar naps, runs, or stands at attention."]],
+    MEANING: {
+      '비견': 'Energy just like yours arrives. You gain allies — and a little friendly competition.',
+      '겁재': 'A day when what\'s yours may need sharing. Keep an extra eye on your wallet and your heart.',
+      '식신': 'A day to eat, enjoy and express yourself. The more you relax, the more luck follows.',
+      '상관': 'Words and talent overflow today. Pause for a beat before saying one more thing.',
+      '편재': 'A day for big moves. Grab the chance, but watch out for impulse spending!',
+      '정재': 'A day for steady stacking. Small, sincere efforts definitely pay off.',
+      '편관': 'Pressure and burdens come in. Don\'t push it — resting is winning today.',
+      '정관': 'A day of rules and responsibility. Look neat, keep promises, and you\'ll be recognized.',
+      '편인': 'Your mind gets busy today. Zoning out can turn into inspiration.',
+      '정인': 'A day of help and care. Leaning on others and learning is a skill too.'
+    },
+    SCENE: { '비견':'Staring contest','겁재':'Guarding its stuff','식신':'Bouncing happily','상관':'Chatter overload','편재':'Off hunting',
+      '정재':'Saving up','편관':'Lying down','정관':'Standing at attention','편인':'Zoning out','정인':'Cozy & cared for' }
+  }
+};
+const FX = {
+  '비견': { list: ['⚡','💢','👀'], mode: 'rise', every: 1500 },
+  '겁재': { list: ['💦','👀','🔒'], mode: 'rise', every: 1300 },
+  '식신': { list: ['🍙','🍠','💕','🍪'], mode: 'rise', every: 800 },
+  '상관': { list: ['💬','❗','🗯️','🎤'], mode: 'rise', every: 450 },
+  '편재': { list: ['💰','✨','💎'], mode: 'rise', every: 800 },
+  '정재': { list: ['🪙'], mode: 'fall', every: 1100 },
+  '편관': { list: ['Z'], mode: 'zz', every: 1000 },
+  '정관': { list: ['👔','✔️','📏'], mode: 'rise', every: 1800 },
+  '편인': { list: ['❓','❔','💭'], mode: 'rise', every: 1500 },
+  '정인': { list: ['🌸','💗','🍃'], mode: 'fall', every: 1000 }
+};
+
+const $ = (id) => document.getElementById(id);
+let ilju = null, offset = 0, tab = 'all', fxTimer = null, LANG = 'ko';
+const T = () => TXT[LANG];
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+};
+const valid = (g) => SAJU.GAPJA.includes(g);
+function dateAt(off) { const d = new Date(); d.setHours(12, 0, 0, 0); d.setDate(d.getDate() + off); return d; }
+function fmt(d) { return T().fmt(d, T().week); }
+function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1800); }
+
+/* ----- 언어 ----- */
+function applyLang() {
+  const t = T();
+  document.documentElement.lang = LANG;
+  document.title = t.title;
+  $('homeLink').textContent = t.home; $('eyebrow').textContent = t.eyebrow;
+  $('h1').textContent = t.h1; $('heroP').innerHTML = t.heroP;
+  $('pickTitle').textContent = t.pickTitle; $('findLink').textContent = t.find; $('q').placeholder = t.search;
+  $('hint').textContent = t.hint; $('prev').textContent = t.prev; $('next').textContent = t.next;
+  $('kvDayL').textContent = t.kvDay; $('kvSipL').textContent = t.kvSip; $('kvElemL').textContent = t.kvElem; $('kvSceneL').textContent = t.kvScene;
+  $('share').textContent = t.share; $('change').textContent = t.change; $('insta').textContent = t.insta; $('pcDown').textContent = t.pc;
+  t.lore.forEach(([h, p], i) => { $('l' + (i + 1) + 'h').textContent = h; $('l' + (i + 1) + 'p').textContent = p; });
+  $('lk').classList.toggle('on', LANG === 'ko'); $('le').classList.toggle('on', LANG === 'en');
+  $('todayChip').textContent = t.chip(fmt(dateAt(0)), SAJU.dayPillar(dateAt(0)));
+  if (!$('picker').hidden) { renderTabs(); renderList(); }
+  if (!$('result').hidden && ilju) render();
+}
+function setLang(l) {
+  LANG = l === 'en' ? 'en' : 'ko'; store.set('ms_lang', LANG);
+  const u = new URL(location.href); u.searchParams.set('lang', LANG); history.replaceState(null, '', u);
+  applyLang();
+}
+$('lk').onclick = () => setLang('ko');
+$('le').onclick = () => setLang('en');
+
+/* ----- 고르기 ----- */
+function renderTabs() {
+  $('tabs').innerHTML = ['all', ...SAJU.STEMS].map(t =>
+    `<button class="tab ${t === tab ? 'on' : ''}" data-t="${t}">${t === 'all' ? T().all : T().tab(t)}</button>`).join('');
+  $('tabs').querySelectorAll('.tab').forEach(el => el.onclick = () => { tab = el.dataset.t; renderTabs(); renderList(); });
+}
+function matches(g, q) {
+  if (!q) return true;
+  const n = (x) => x.toLowerCase().replace(/[\s-]/g, '');
+  return n([g, SAJU.title(g), I18N.avatarName(g, 'en'), I18N.title(g, 'en'), I18N.iljuHanja(g)].join(' ')).includes(n(q));
+}
+function renderList() {
+  const q = $('q').value.trim();
+  let html = '';
+  SAJU.STEMS.filter(s => tab === 'all' || s === tab).forEach(s => {
+    const items = SAJU.GAPJA.filter(g => g[0] === s && matches(g, q))
+      .sort((a, b) => SAJU.BRANCHES.indexOf(a[1]) - SAJU.BRANCHES.indexOf(b[1]));
+    if (!items.length) return;
+    html += `<div class="group-title">${T().group(s)}</div><div class="grid">` + items.map(g =>
+      `<button class="card" data-g="${g}"><img src="thumb/${g}.webp" alt="${I18N.title(g, LANG)}" loading="lazy"><b>${I18N.avatarName(g, LANG)}</b><span>${I18N.title(g, LANG)}</span></button>`).join('') + '</div>';
+  });
+  $('list').innerHTML = html || `<div class="empty">${T().empty}</div>`;
+  $('list').querySelectorAll('.card').forEach(el => el.onclick = () => choose(el.dataset.g));
+}
+function showPicker() {
+  $('result').hidden = true; $('picker').hidden = false;
+  renderTabs(); renderList();
+  $('picker').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+function choose(g) {
+  ilju = g; offset = 0; store.set('ms_ilju', g);
+  const u = new URL(location.href); u.searchParams.set('ilju', g); history.replaceState(null, '', u);
+  $('picker').hidden = true; $('result').hidden = false;
+  render();
+  $('result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ----- 결과 ----- */
+function render() {
+  const t = T();
+  const d = dateAt(offset);
+  const day = SAJU.dayPillar(d);
+  const sipKo = SAJU.sipsung(ilju[0], day.stem);
+  const sip = I18N.sip(sipKo, LANG);
+  const elem = I18N.elem(SAJU.elementOf(day.stem), LANG);
+  const L = window.LINES[LANG] || window.LINES.ko;
+  const line = (L[ilju] || [])[SAJU.STEMS.indexOf(day.stem)] || '';
+  const src = `img/${ilju}.webp`;
+  const when = t.when(offset);
+
+  $('stage').className = 'stage-card s-' + sipKo;
+  $('img').src = src; $('twinImg').src = src; $('whoImg').src = `thumb/${ilju}.webp`;
+  $('img').alt = I18N.title(ilju, LANG);
+  $('whoName').textContent = I18N.avatarName(ilju, LANG);
+  $('whoDesc').textContent = LANG === 'en' ? I18N.typeDesc(ilju) : '';
+  $('whoDesc').hidden = LANG !== 'en';
+  $('whoSub').textContent = t.whoSub(ilju);
+  $('dayLabel').innerHTML = `${fmt(d)}<small>${when} · ${t.dayShort(day)}</small>`;
+  $('kvDay').textContent = t.dayShort(day);
+  $('kvSip').textContent = sip;
+  $('kvElem').textContent = LANG === 'en' ? elem : `${elem} (${day.stem})`;
+  $('kvScene').textContent = t.SCENE[sipKo];
+  $('meaning').innerHTML = t.meaning(day, elem, sip, t.MEANING[sipKo]);
+  say(line, t.tag(when, day, sip, elem));
+  clearInterval(fxTimer); fxTimer = setInterval(() => spawn(sipKo), FX[sipKo].every);
+}
+function say(text, tag) {
+  const b = $('bubble'); $('line').textContent = text; $('tag').innerHTML = tag;
+  b.style.animation = 'none'; void b.offsetWidth; b.style.animation = '';
+}
+function spawn(sip) {
+  if (document.hidden) return;
+  const f = FX[sip]; const fx = $('fx');
+  const el = document.createElement('div');
+  el.textContent = f.list[Math.floor(Math.random() * f.list.length)];
+  el.className = 'p ' + f.mode;
+  const st = $('stage').getBoundingClientRect(), r = $('body').getBoundingClientRect();
+  const x = r.left - st.left + r.width * (0.2 + Math.random() * 0.6);
+  const y = f.mode === 'fall' ? 110 : f.mode === 'zz' ? r.top - st.top + r.height * 0.5 : r.top - st.top + r.height * (0.25 + Math.random() * 0.3);
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  el.style.setProperty('--dx', ((Math.random() - 0.5) * 90) + 'px');
+  fx.appendChild(el); setTimeout(() => el.remove(), 3200);
+}
+let pokeN = 0;
+$('body').onclick = () => {
+  const st = $('stage'); st.classList.remove('poke'); void st.offsetWidth; st.classList.add('poke');
+  setTimeout(() => st.classList.remove('poke'), 520);
+  pokeN++;
+  if (pokeN % 3 === 0) { render(); return; }
+  const r = I18N.reactions(ilju, LANG);
+  say(r[Math.floor(Math.random() * r.length)], `${I18N.avatarName(ilju, LANG)} · ${I18N.title(ilju, LANG)}`);
+};
+
+$('prev').onclick = () => { offset--; render(); };
+$('next').onclick = () => { offset++; render(); };
+$('change').onclick = showPicker;
+$('share').onclick = async () => {
+  const u = new URL(location.href); u.searchParams.set('ilju', ilju); u.searchParams.set('lang', LANG);
+  try { await navigator.clipboard.writeText(u.toString()); toast(T().copied); }
+  catch (e) { prompt(T().copyPrompt, u.toString()); }
+};
+$('q').oninput = renderList;
+$('findLink').href = CONFIG.FIND_URL;
+$('insta').href = CONFIG.INSTAGRAM_URL;
+if (CONFIG.PC_DOWNLOAD_URL) { $('pcDown').href = CONFIG.PC_DOWNLOAD_URL; $('pcDown').hidden = false; }
+
+/* ----- 시작 ----- */
+(function init() {
+  const qs = new URLSearchParams(location.search);
+  const ql = qs.get('lang'), saved = store.get('ms_lang');
+  LANG = (ql === 'en' || ql === 'ko') ? ql : (saved || ((navigator.language || 'ko').toLowerCase().startsWith('ko') ? 'ko' : 'en'));
+  const p = qs.get('ilju');
+  const g = valid(p) ? p : store.get('ms_ilju');
+  if (valid(g)) { ilju = g; store.set('ms_ilju', g); $('result').hidden = false; }
+  else { $('picker').hidden = false; }
+  applyLang();
+})();
+</script>
+
+<!-- 홈페이지 상단 KO / EN 버튼과 이 페이지 언어를 하나로 연결 -->
+<script>
+(function () {
+  if (window.MATSPACE_APPLY_LANG) window.MATSPACE_APPLY_LANG();   // 상단바를 이 페이지 언어에 맞추기
+  window.addEventListener('langchange', function (e) {
+    if (e.detail && e.detail !== LANG) setLang(e.detail);          // 상단 KO/EN 누르면 이 페이지도 전환
+  });
+})();
+</script>
+</body>
+</html>
