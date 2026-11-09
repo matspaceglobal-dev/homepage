@@ -7,7 +7,8 @@
   const temp = document.createElement("canvas");
   const video = document.createElement("video"); video.setAttribute("playsinline", ""); video.muted = true;
   const AV = window.PHOTO_AVATARS;
-  const S = { key: Object.keys(AV)[0], avatar: null, base: [.5, .5, .15], face: { cx: .5, cy: .5, r: .15 },
+  const q0 = new URLSearchParams(location.search).get("ilju");
+  const S = { key: AV[q0] ? q0 : Object.keys(AV)[0], avatar: null, base: [.5, .5, .15], face: { cx: .5, cy: .5, r: .15 },
     photo: null, live: false, stream: null, facing: "user", mirror: false, zoom: 1, ox: 0, oy: 0, mode: "photo", hintKey: null };
 
   const HINTS = {
@@ -24,7 +25,10 @@
     S.key = k; const info = AV[k], im = new Image();
     im.onload = () => {
       S.avatar = im; S.base = info.face.slice(); S.face = { cx: info.face[0], cy: info.face[1], r: info.face[2] };
-      canvas.width = 720; canvas.height = Math.round(720 * im.naturalHeight / im.naturalWidth); draw();
+      $("#frameSize").value = 1; $("#frameVal").textContent = "100%";
+      canvas.width = 720; canvas.height = Math.round(720 * im.naturalHeight / im.naturalWidth);
+      S.front = null; draw();
+      if (info.front) { const fr = new Image(); fr.onload = () => { if (S.key === k) { S.front = fr; draw(); } }; fr.src = info.front; }
     };
     im.src = info.src;
   }
@@ -58,6 +62,7 @@
       c.fillStyle = "#151515"; c.font = "800 " + Math.round(r * .3) + "px NanumSquareRound, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle";
       c.fillText(tr("얼굴 자리", "Face here"), cx, cy);
     }
+    if (S.front) c.drawImage(S.front, 0, 0, W, H);   // 앞에 있는 물체(나무 기둥 등)는 사진 위로 다시 덮기
     if (editor && S.mode === "frame") {
       c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.setLineDash([r * .14, r * .1]);
       c.lineWidth = Math.max(2.5, r * .05); c.strokeStyle = "#151515"; c.stroke(); c.lineWidth = Math.max(1, r * .02); c.strokeStyle = "#FFFF00"; c.stroke(); c.setLineDash([]);
@@ -151,7 +156,18 @@
   $("#btnSave").onclick = save; $("#btnDl").onclick = download; $("#btnClose").onclick = closeModal;
   $("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
 
-  window.addEventListener("langchange", () => { if (S.hintKey) $("#hint").textContent = tr(...HINTS[S.hintKey]); draw(); });
+  /* ---------- 아바타 고르기 ---------- */
+  function buildPicker() {
+    const cur = S.stemTab;
+    $("#tabs").innerHTML = window.SAJU.STEMS.map(s => `<button class="pb-tab${s === cur ? " on" : ""}" data-s="${s}">${s}</button>`).join("");
+    const items = Object.keys(AV).filter(g => g[0] === cur).sort((a, b) => window.SAJU.BRANCHES.indexOf(a[1]) - window.SAJU.BRANCHES.indexOf(b[1]));
+    $("#grid").innerHTML = items.map(g => `<button class="pb-av${g === S.key ? " on" : ""}" data-g="${g}"><img src="img/${g}.webp" alt="${window.I18N.avatarName(g, lang())}" loading="lazy"><b>${window.I18N.avatarName(g, lang())}</b></button>`).join("");
+  }
+  $("#tabs").addEventListener("click", e => { const b = e.target.closest(".pb-tab"); if (!b) return; S.stemTab = b.dataset.s; buildPicker(); });
+  $("#grid").addEventListener("click", e => { const b = e.target.closest(".pb-av"); if (!b) return; loadAvatar(b.dataset.g); buildPicker(); });
+
+  window.addEventListener("langchange", () => { buildPicker(); if (S.hintKey) $("#hint").textContent = tr(...HINTS[S.hintKey]); draw(); });
   window.addEventListener("pagehide", stopCam);
+  S.stemTab = S.key[0]; buildPicker();
   loadAvatar(S.key); showButtons(); setHint("pick");
 })();

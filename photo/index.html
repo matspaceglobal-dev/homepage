@@ -21,6 +21,17 @@
   .pb-step + .pb-step { margin-top: 30px; padding-top: 30px; border-top: 2px solid var(--gray-100); }
   .pb-h { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
   .pb-n { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--yellow); font-size: 14px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .pb-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 12px; scrollbar-width: none; }
+  .pb-tabs::-webkit-scrollbar { display: none; }
+  .pb-tab { flex: 0 0 auto; padding: 8px 15px; border-radius: 999px; border: 2px solid var(--gray-100); background: var(--paper); color: var(--gray-600); font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; transition: .2s; }
+  .pb-tab:hover { border-color: var(--ink); color: var(--ink); }
+  .pb-tab.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .pb-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .pb-av { background: var(--paper); border: 2px solid transparent; border-radius: 18px; padding: 8px 4px 6px; cursor: pointer; font-family: inherit; color: inherit; text-align: center; transition: transform .2s ease, background .2s ease, border-color .2s ease; }
+  .pb-av:hover { transform: translateY(-3px); background: var(--yellow); border-color: var(--ink); }
+  .pb-av.on { background: var(--yellow); border-color: var(--ink); }
+  .pb-av img { width: 100%; aspect-ratio: 1; object-fit: contain; display: block; }
+  .pb-av b { display: block; font-size: 12px; font-weight: 800; margin-top: 2px; white-space: nowrap; }
   .pb-btns { display: flex; flex-wrap: wrap; gap: 10px; }
   .pb-btns .btn { flex: 1 1 auto; justify-content: center; }
   .pb-row { margin-top: 16px; }
@@ -62,7 +73,12 @@
         </div>
         <div class="pb-panel">
           <div class="pb-step">
-            <h2 class="pb-h"><span class="pb-n">1</span><span data-en="Take or choose a photo">사진 찍기 · 고르기</span></h2>
+            <h2 class="pb-h"><span class="pb-n">1</span><span data-en="Pick an avatar">아바타 고르기</span></h2>
+            <div class="pb-tabs" id="tabs"></div>
+            <div class="pb-grid" id="grid"></div>
+          </div>
+          <div class="pb-step">
+            <h2 class="pb-h"><span class="pb-n">2</span><span data-en="Take or choose a photo">사진 찍기 · 고르기</span></h2>
             <div class="pb-btns" id="btnsIdle">
               <button class="btn btn-dark" id="btnCam" data-en="Open camera">카메라 켜기</button>
               <button class="btn btn-line" id="btnFile" data-en="Choose from album">앨범에서 고르기</button>
@@ -80,7 +96,7 @@
             <input type="file" id="fileCam" accept="image/*" capture="user" hidden>
           </div>
           <div class="pb-step">
-            <h2 class="pb-h"><span class="pb-n">2</span><span data-en="Fit &amp; save">맞추고 저장하기</span></h2>
+            <h2 class="pb-h"><span class="pb-n">3</span><span data-en="Fit &amp; save">맞추고 저장하기</span></h2>
             <div class="pb-seg">
               <button id="modePhoto" class="on" data-en="Move photo">사진 맞추기</button>
               <button id="modeFrame" data-en="Move frame">프레임 맞추기</button>
@@ -113,6 +129,8 @@
   </div>
   <div id="site-footer"></div>
   <script src="../config.js"></script>
+  <script src="../today/saju.js"></script>
+  <script src="../today/i18n.js"></script>
   <script src="faces.js"></script>
   <script src="photo.js"></script>
   <script src="../layout.js"></script>
