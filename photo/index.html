@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>아바타 포토부스 | 맛스페이스</title>
+<meta name="description" content="내 아바타의 얼굴 자리에 사진을 쏙! 촬영하고 바로 저장하는 맛스페이스 아바타 포토부스.">
+<meta name="theme-color" content="#151515">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../style.css">
+<style>
+  .pb-body { padding: 56px 0 100px; }
+  .pb-app { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .pb-stage { position: sticky; top: 92px; background: var(--gray-50); border-radius: var(--radius-lg); padding: 20px; }
+  .pb-canvas-wrap { background: #fff; border-radius: 26px; overflow: hidden; line-height: 0; }
+  .pb-canvas { width: 100%; height: auto; display: block; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .pb-hint { margin: 14px 4px 0; font-size: 14px; color: var(--gray-600); line-height: 1.5; min-height: 21px; }
+  .pb-panel { background: var(--gray-50); border-radius: var(--radius-lg); padding: 30px; }
+  .pb-step + .pb-step { margin-top: 30px; padding-top: 30px; border-top: 2px solid var(--gray-100); }
+  .pb-h { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+  .pb-n { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--yellow); font-size: 14px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+  .pb-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .pb-btns .btn { flex: 1 1 auto; justify-content: center; }
+  .pb-row { margin-top: 16px; }
+  .pb-row label { display: flex; justify-content: space-between; font-size: 14px; font-weight: 800; margin-bottom: 8px; }
+  .pb-row label .v { color: var(--gray-400); font-weight: 700; }
+  .pb-seg { display: flex; background: var(--paper); border-radius: 999px; padding: 4px; gap: 4px; }
+  .pb-seg button { flex: 1; border: 0; background: transparent; padding: 10px 8px; border-radius: 999px; font-family: inherit; font-weight: 800; font-size: 14px; color: var(--gray-600); cursor: pointer; transition: .2s; }
+  .pb-seg button.on { background: var(--ink); color: var(--paper); }
+  .pb-panel input[type=range] { width: 100%; accent-color: #151515; }
+  .pb-save { width: 100%; padding: 18px; font-size: 17px; }
+  .pb-privacy { margin-top: 14px; font-size: 13px; color: var(--gray-600); line-height: 1.55; text-align: center; word-break: keep-all; }
+  [hidden] { display: none !important; }
+  .pb-modal { position: fixed; inset: 0; z-index: 200; background: rgba(21,21,21,.8); display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+  .pb-modal-card { background: var(--paper); border-radius: var(--radius-lg); padding: 22px; width: 100%; max-width: 440px; text-align: center; }
+  .pb-modal-card img { width: 100%; height: auto; border-radius: 22px; background: #fff; border: 2px solid var(--gray-100); display: block; }
+  .pb-modal-card h3 { margin: 4px 0 14px; font-size: 20px; font-weight: 800; }
+  .pb-modal-card p { font-size: 13px; color: var(--gray-600); margin: 12px 0 16px; line-height: 1.5; }
+  .pb-modal-card .btn-row { justify-content: center; }
+  @media (max-width: 900px) { .pb-app { grid-template-columns: 1fr; } .pb-stage { position: static; padding: 14px; } .pb-panel { padding: 22px 18px; } .pb-body { padding-top: 36px; } }
+</style>
+</head>
+<body data-root="../" data-page="photo" data-title-en="Avatar Photo Booth | Mat Space">
+  <div id="site-header"></div>
+  <main>
+    <section class="page-hero">
+      <div class="blob blob-1" aria-hidden="true"></div>
+      <div class="container">
+        <h1 data-en="Avatar Photo Booth">아바타 포토부스</h1>
+        <p data-en="Pop a face into your avatar’s frame, snap it, and save it.">아바타의 얼굴 자리에 사진을 쏙! 찍어서 바로 저장해요.</p>
+      </div>
+    </section>
+    <section class="pb-body">
+      <div class="container pb-app">
+        <div class="pb-stage">
+          <div class="pb-canvas-wrap"><canvas id="stage" class="pb-canvas" width="720" height="1080"></canvas></div>
+          <p class="pb-hint" id="hint"></p>
+        </div>
+        <div class="pb-panel">
+          <div class="pb-step">
+            <h2 class="pb-h"><span class="pb-n">1</span><span data-en="Take or choose a photo">사진 찍기 · 고르기</span></h2>
+            <div class="pb-btns" id="btnsIdle">
+              <button class="btn btn-dark" id="btnCam" data-en="Open camera">카메라 켜기</button>
+              <button class="btn btn-line" id="btnFile" data-en="Choose from album">앨범에서 고르기</button>
+            </div>
+            <div class="pb-btns" id="btnsLive" hidden>
+              <button class="btn btn-yellow" id="btnShot" data-en="Take photo">촬영하기</button>
+              <button class="btn btn-line" id="btnFlip" data-en="Switch camera">카메라 전환</button>
+              <button class="btn btn-line" id="btnOff" data-en="Close">닫기</button>
+            </div>
+            <div class="pb-btns" id="btnsDone" hidden>
+              <button class="btn btn-dark" id="btnRetake" data-en="Retake">다시 찍기</button>
+              <button class="btn btn-line" id="btnFile2" data-en="Choose another">다른 사진 고르기</button>
+            </div>
+            <input type="file" id="file" accept="image/*" hidden>
+            <input type="file" id="fileCam" accept="image/*" capture="user" hidden>
+          </div>
+          <div class="pb-step">
+            <h2 class="pb-h"><span class="pb-n">2</span><span data-en="Fit &amp; save">맞추고 저장하기</span></h2>
+            <div class="pb-seg">
+              <button id="modePhoto" class="on" data-en="Move photo">사진 맞추기</button>
+              <button id="modeFrame" data-en="Move frame">프레임 맞추기</button>
+            </div>
+            <div class="pb-row" id="rowZoom">
+              <label><span data-en="Face size">얼굴 크기</span><span class="v" id="zoomVal">100%</span></label>
+              <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
+            </div>
+            <div class="pb-row" id="rowFrame" hidden>
+              <label><span data-en="Frame size">프레임 크기</span><span class="v" id="frameVal">100%</span></label>
+              <input type="range" id="frameSize" min="0.6" max="1.8" step="0.01" value="1">
+              <div class="btn-row" style="margin-top:12px"><button class="btn btn-line btn-sm" id="frameReset" data-en="Reset frame">프레임 처음 위치로</button></div>
+            </div>
+            <div class="pb-row">
+              <button class="btn btn-yellow pb-save" id="btnSave" data-en="Save photo">사진 저장하기</button>
+              <p class="pb-privacy" data-en="Your photo is processed only on this device. It is never uploaded or stored on our server.">사진은 지금 쓰는 기기 안에서만 처리돼요. 서버로 전송되거나 저장되지 않아요.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div class="pb-modal" id="modal" hidden>
+    <div class="pb-modal-card">
+      <h3 data-en="Your avatar photo is ready!">완성! 아바타 사진이에요</h3>
+      <img id="resultImg" alt="">
+      <p data-en="If it doesn’t save automatically, press and hold the image and choose “Save image”.">저장이 안 되면 이미지를 길게 눌러 ‘이미지 저장’을 선택해 주세요.</p>
+      <div class="btn-row"><button class="btn btn-yellow" id="btnDl" data-en="Save">저장하기</button><button class="btn btn-line" id="btnClose" data-en="Close">닫기</button></div>
+    </div>
+  </div>
+  <div id="site-footer"></div>
+  <script src="../config.js"></script>
+  <script src="faces.js"></script>
+  <script src="photo.js"></script>
+  <script src="../layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+/* 아바타 포토부스 — 사진을 아바타 얼굴 프레임(동그라미)에 넣고 저장. 모든 처리는 브라우저 안에서만, 서버 전송 없음. */
+(function () {
+  const $ = s => document.querySelector(s);
+  const lang = () => (window.MATSPACE_LANG ? window.MATSPACE_LANG() : "ko");
+  const tr = (ko, en) => (lang() === "en" ? en : ko);
+  const canvas = $("#stage"), ctx = canvas.getContext("2d");
+  const temp = document.createElement("canvas");
+  const video = document.createElement("video"); video.setAttribute("playsinline", ""); video.muted = true;
+  const AV = window.PHOTO_AVATARS;
+  const S = { key: Object.keys(AV)[0], avatar: null, base: [.5, .5, .15], face: { cx: .5, cy: .5, r: .15 },
+    photo: null, live: false, stream: null, facing: "user", mirror: false, zoom: 1, ox: 0, oy: 0, mode: "photo", hintKey: null };
+
+  const HINTS = {
+    pick: ["사진을 찍거나 앨범에서 골라 주세요.", "Take a photo or choose one from your album."],
+    adjust: ["사진을 드래그해서 얼굴을 맞추고, 두 손가락(또는 슬라이더)으로 크기를 조절하세요.", "Drag the photo to fit the face. Pinch or use the slider to resize."],
+    live: ["얼굴을 동그라미 안에 맞춘 뒤 ‘촬영하기’를 눌러 주세요.", "Fit the face inside the circle, then tap “Take photo”."],
+    frame: ["프레임을 드래그해서 아바타 얼굴 위치에 맞춰 보세요.", "Drag the frame to match the avatar’s face."],
+    nocam: ["카메라를 쓸 수 없어요. ‘앨범에서 고르기’로 사진을 선택해 주세요.", "Camera isn’t available. Please use “Choose from album”."],
+    needPhoto: ["먼저 사진을 찍거나 골라 주세요.", "Please take or choose a photo first."]
+  };
+  const setHint = k => { S.hintKey = k; $("#hint").textContent = tr(...HINTS[k]); };
+
+  function loadAvatar(k) {
+    S.key = k; const info = AV[k], im = new Image();
+    im.onload = () => {
+      S.avatar = im; S.base = info.face.slice(); S.face = { cx: info.face[0], cy: info.face[1], r: info.face[2] };
+      canvas.width = 720; canvas.height = Math.round(720 * im.naturalHeight / im.naturalWidth); draw();
+    };
+    im.src = info.src;
+  }
+
+  const sizeOf = s => [s.videoWidth || s.naturalWidth || s.width, s.videoHeight || s.naturalHeight || s.height];
+  function clampPan(W, f) {
+    const src = S.live ? video : S.photo; if (!src) return; const [sw, sh] = sizeOf(src); if (!sw) return;
+    const d = 2 * f.r * W, k = Math.max(d / sw, d / sh) * S.zoom;
+    const mx = Math.max(0, (sw * k / 2 - d / 2) / d), my = Math.max(0, (sh * k / 2 - d / 2) / d);
+    S.ox = Math.min(mx, Math.max(-mx, S.ox)); S.oy = Math.min(my, Math.max(-my, S.oy));
+  }
+  function render(c, W, H, editor) {
+    c.fillStyle = "#fff"; c.fillRect(0, 0, W, H);
+    if (S.avatar) c.drawImage(S.avatar, 0, 0, W, H);
+    const f = S.face, cx = f.cx * W, cy = f.cy * H, r = f.r * W;
+    const src = S.live ? video : S.photo, [sw, sh] = src ? sizeOf(src) : [0, 0];
+    if (src && sw) {
+      clampPan(W, f);
+      if (temp.width !== W || temp.height !== H) { temp.width = W; temp.height = H; }
+      const t = temp.getContext("2d"); t.setTransform(1, 0, 0, 1, 0, 0); t.globalCompositeOperation = "source-over"; t.clearRect(0, 0, W, H);
+      const d = 2 * r, k = Math.max(d / sw, d / sh) * S.zoom, dw = sw * k, dh = sh * k;
+      t.save(); t.translate(cx + S.ox * d, cy + S.oy * d); if (S.mirror) t.scale(-1, 1); t.drawImage(src, -dw / 2, -dh / 2, dw, dh); t.restore();
+      t.globalCompositeOperation = "destination-in";
+      const g = t.createRadialGradient(cx, cy, r * .93, cx, cy, r); g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)");
+      t.fillStyle = g; t.fillRect(0, 0, W, H); t.globalCompositeOperation = "source-over";
+      c.drawImage(temp, 0, 0);
+      c.beginPath(); c.arc(cx, cy, r * .985, 0, Math.PI * 2); c.strokeStyle = "rgba(80,60,45,.28)"; c.lineWidth = Math.max(1.5, r * .025); c.stroke();
+    } else if (editor) {
+      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.fillStyle = "rgba(255,255,255,.82)"; c.fill();
+      c.setLineDash([r * .12, r * .09]); c.lineWidth = Math.max(2, r * .05); c.strokeStyle = "#151515"; c.stroke(); c.setLineDash([]);
+      c.fillStyle = "#151515"; c.font = "800 " + Math.round(r * .3) + "px NanumSquareRound, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle";
+      c.fillText(tr("얼굴 자리", "Face here"), cx, cy);
+    }
+    if (editor && S.mode === "frame") {
+      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.setLineDash([r * .14, r * .1]);
+      c.lineWidth = Math.max(2.5, r * .05); c.strokeStyle = "#151515"; c.stroke(); c.lineWidth = Math.max(1, r * .02); c.strokeStyle = "#FFFF00"; c.stroke(); c.setLineDash([]);
+    }
+  }
+  const draw = () => render(ctx, canvas.width, canvas.height, true);
+  let raf = 0;
+  function loop() { cancelAnimationFrame(raf); const step = () => { draw(); if (S.live) raf = requestAnimationFrame(step); }; step(); }
+  function showButtons() { $("#btnsIdle").hidden = S.live || !!S.photo; $("#btnsLive").hidden = !S.live; $("#btnsDone").hidden = S.live || !S.photo; }
+  const resetZoom = () => { S.zoom = 1; S.ox = 0; S.oy = 0; $("#zoom").value = 1; $("#zoomVal").textContent = "100%"; };
+
+  function stopCam() { if (S.stream) S.stream.getTracks().forEach(t => t.stop()); S.stream = null; S.live = false; video.srcObject = null; }
+  async function startCam() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { setHint("nocam"); $("#fileCam").click(); return; }
+    stopCam();
+    try {
+      S.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: S.facing, width: { ideal: 1280 }, height: { ideal: 1280 } }, audio: false });
+      video.srcObject = S.stream; await video.play();
+      S.live = true; S.photo = null; S.mirror = S.facing === "user"; resetZoom(); showButtons(); setHint("live"); loop();
+    } catch (e) { stopCam(); showButtons(); setHint("nocam"); draw(); }
+  }
+  function shoot() {
+    if (!S.live || !video.videoWidth) return;
+    const c = document.createElement("canvas"); c.width = video.videoWidth; c.height = video.videoHeight; c.getContext("2d").drawImage(video, 0, 0);
+    const m = S.mirror; stopCam(); S.photo = c; S.mirror = m; showButtons(); setHint("adjust"); draw();
+  }
+  async function useFile(file) {
+    if (!file) return; stopCam(); let bmp = null;
+    try { bmp = await createImageBitmap(file, { imageOrientation: "from-image" }); } catch (e) {}
+    if (!bmp) bmp = await new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = URL.createObjectURL(file); });
+    if (!bmp) return; S.photo = bmp; S.mirror = false; resetZoom(); showButtons(); setHint("adjust"); draw();
+  }
+
+  $("#btnCam").onclick = startCam;
+  $("#btnFlip").onclick = () => { S.facing = S.facing === "user" ? "environment" : "user"; startCam(); };
+  $("#btnOff").onclick = () => { stopCam(); showButtons(); setHint("pick"); draw(); };
+  $("#btnShot").onclick = shoot;
+  $("#btnFile").onclick = $("#btnFile2").onclick = () => $("#file").click();
+  $("#btnRetake").onclick = () => { S.photo = null; showButtons(); startCam(); };
+  $("#file").onchange = e => { useFile(e.target.files[0]); e.target.value = ""; };
+  $("#fileCam").onchange = e => { useFile(e.target.files[0]); e.target.value = ""; };
+
+  function setMode(m) {
+    S.mode = m; $("#modePhoto").classList.toggle("on", m === "photo"); $("#modeFrame").classList.toggle("on", m === "frame");
+    $("#rowZoom").hidden = m !== "photo"; $("#rowFrame").hidden = m !== "frame";
+    setHint(m === "frame" ? "frame" : (S.photo ? "adjust" : S.live ? "live" : "pick")); draw();
+  }
+  $("#modePhoto").onclick = () => setMode("photo"); $("#modeFrame").onclick = () => setMode("frame");
+  const setZoom = z => { S.zoom = Math.min(3, Math.max(1, z)); $("#zoom").value = S.zoom; $("#zoomVal").textContent = Math.round(S.zoom * 100) + "%"; };
+  const setFrameScale = v => { v = Math.min(1.8, Math.max(.6, v)); S.face.r = S.base[2] * v; $("#frameSize").value = v; $("#frameVal").textContent = Math.round(v * 100) + "%"; };
+  $("#zoom").oninput = e => { setZoom(+e.target.value); draw(); };
+  $("#frameSize").oninput = e => { setFrameScale(+e.target.value); draw(); };
+  $("#frameReset").onclick = () => { S.face = { cx: S.base[0], cy: S.base[1], r: S.base[2] }; setFrameScale(1); draw(); };
+
+  const ptrs = new Map(); let p0 = null;
+  const dist = () => { const [a, b] = [...ptrs.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
+  canvas.addEventListener("pointerdown", e => { canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) p0 = { d: dist(), zoom: S.zoom, v: S.face.r / S.base[2] }; });
+  canvas.addEventListener("pointermove", e => {
+    const p = ptrs.get(e.pointerId); if (!p) return;
+    const k = canvas.width / canvas.getBoundingClientRect().width, dx = (e.clientX - p.x) * k, dy = (e.clientY - p.y) * k; p.x = e.clientX; p.y = e.clientY;
+    if (ptrs.size === 2 && p0) { const s = dist() / p0.d; S.mode === "photo" ? setZoom(p0.zoom * s) : setFrameScale(p0.v * s); }
+    else if (ptrs.size === 1) { if (S.mode === "photo") { const d = 2 * S.face.r * canvas.width; S.ox += dx / d; S.oy += dy / d; } else { S.face.cx += dx / canvas.width; S.face.cy += dy / canvas.height; } }
+    if (!S.live) draw();
+  });
+  const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) p0 = null; };
+  canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
+  canvas.addEventListener("wheel", e => { e.preventDefault(); const f = e.deltaY < 0 ? 1.06 : .94; S.mode === "photo" ? setZoom(S.zoom * f) : setFrameScale(S.face.r / S.base[2] * f); if (!S.live) draw(); }, { passive: false });
+
+  let url = null, blob = null;
+  function save() {
+    if (S.live) shoot(); if (!S.photo) { setHint("needPhoto"); return; }
+    const aw = S.avatar.naturalWidth, ah = S.avatar.naturalHeight, k = Math.max(1, 1200 / Math.max(aw, ah));
+    const W = Math.round(aw * k), H = Math.round(ah * k), out = document.createElement("canvas"); out.width = W; out.height = H;
+    const o = out.getContext("2d"); o.imageSmoothingQuality = "high"; const m = S.mode; S.mode = "photo"; render(o, W, H, false); S.mode = m;
+    out.toBlob(b => { if (!b) return; blob = b; if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(b); $("#resultImg").src = url; $("#modal").hidden = false; document.body.classList.add("no-scroll"); }, "image/png");
+  }
+  async function download() {
+    if (!blob) return; const name = "matspace-avatar-" + S.key + ".png", file = new File([blob], name, { type: "image/png" });
+    try { if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) { await navigator.share({ files: [file], title: "Mat Space" }); return; } }
+    catch (e) { if (e && e.name === "AbortError") return; }
+    const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  }
+  const closeModal = () => { $("#modal").hidden = true; document.body.classList.remove("no-scroll"); };
+  $("#btnSave").onclick = save; $("#btnDl").onclick = download; $("#btnClose").onclick = closeModal;
+  $("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+
+  window.addEventListener("langchange", () => { if (S.hintKey) $("#hint").textContent = tr(...HINTS[S.hintKey]); draw(); });
+  window.addEventListener("pagehide", stopCam);
+  loadAvatar(S.key); showButtons(); setHint("pick");
+})();
