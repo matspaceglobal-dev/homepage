@@ -13,8 +13,9 @@
   .pb-body { padding: 56px 0 100px; }
   .pb-app { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; align-items: start; }
   .pb-stage { position: sticky; top: 92px; background: var(--gray-50); border-radius: var(--radius-lg); padding: 20px; }
-  .pb-canvas-wrap { background: #fff; border-radius: 26px; overflow: hidden; line-height: 0; }
-  .pb-canvas { width: 100%; height: auto; display: block; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+  .pb-canvas-wrap { background: #fff; border-radius: 26px; overflow: hidden; line-height: 0; position: relative; }
+  .pb-grab { position: absolute; border-radius: 50%; touch-action: none; cursor: grab; }
+  .pb-canvas { width: 100%; height: auto; display: block; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
   .pb-hint { margin: 14px 4px 0; font-size: 14px; color: var(--gray-600); line-height: 1.5; min-height: 21px; }
   .pb-panel { background: var(--gray-50); border-radius: var(--radius-lg); padding: 30px; }
   .pb-step + .pb-step { margin-top: 30px; padding-top: 30px; border-top: 2px solid var(--gray-100); }
@@ -56,7 +57,7 @@
     <section class="pb-body">
       <div class="container pb-app">
         <div class="pb-stage">
-          <div class="pb-canvas-wrap"><canvas id="stage" class="pb-canvas" width="720" height="1080"></canvas></div>
+          <div class="pb-canvas-wrap"><canvas id="stage" class="pb-canvas" width="720" height="1080"></canvas><div id="grab" class="pb-grab"></div></div>
           <p class="pb-hint" id="hint"></p>
         </div>
         <div class="pb-panel">

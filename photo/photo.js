@@ -3,7 +3,7 @@
   const $ = s => document.querySelector(s);
   const lang = () => (window.MATSPACE_LANG ? window.MATSPACE_LANG() : "ko");
   const tr = (ko, en) => (lang() === "en" ? en : ko);
-  const canvas = $("#stage"), ctx = canvas.getContext("2d");
+  const canvas = $("#stage"), ctx = canvas.getContext("2d"), grab = $("#grab");
   const temp = document.createElement("canvas");
   const video = document.createElement("video"); video.setAttribute("playsinline", ""); video.muted = true;
   const AV = window.PHOTO_AVATARS;
@@ -63,7 +63,14 @@
       c.lineWidth = Math.max(2.5, r * .05); c.strokeStyle = "#151515"; c.stroke(); c.lineWidth = Math.max(1, r * .02); c.strokeStyle = "#FFFF00"; c.stroke(); c.setLineDash([]);
     }
   }
-  const draw = () => render(ctx, canvas.width, canvas.height, true);
+  function placeGrab() {
+    const k = canvas.clientWidth / canvas.width, f = S.face, r = f.r * canvas.width * k;
+    grab.style.left = (canvas.offsetLeft + f.cx * canvas.width * k - r) + "px";
+    grab.style.top = (canvas.offsetTop + f.cy * canvas.height * k - r) + "px";
+    grab.style.width = grab.style.height = (2 * r) + "px";
+  }
+  const draw = () => { render(ctx, canvas.width, canvas.height, true); placeGrab(); };
+  window.addEventListener("resize", placeGrab);
   let raf = 0;
   function loop() { cancelAnimationFrame(raf); const step = () => { draw(); if (S.live) raf = requestAnimationFrame(step); }; step(); }
   function showButtons() { $("#btnsIdle").hidden = S.live || !!S.photo; $("#btnsLive").hidden = !S.live; $("#btnsDone").hidden = S.live || !S.photo; }
@@ -114,8 +121,8 @@
 
   const ptrs = new Map(); let p0 = null;
   const dist = () => { const [a, b] = [...ptrs.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
-  canvas.addEventListener("pointerdown", e => { canvas.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) p0 = { d: dist(), zoom: S.zoom, v: S.face.r / S.base[2] }; });
-  canvas.addEventListener("pointermove", e => {
+  grab.addEventListener("pointerdown", e => { grab.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) p0 = { d: dist(), zoom: S.zoom, v: S.face.r / S.base[2] }; });
+  grab.addEventListener("pointermove", e => {
     const p = ptrs.get(e.pointerId); if (!p) return;
     const k = canvas.width / canvas.getBoundingClientRect().width, dx = (e.clientX - p.x) * k, dy = (e.clientY - p.y) * k; p.x = e.clientX; p.y = e.clientY;
     if (ptrs.size === 2 && p0) { const s = dist() / p0.d; S.mode === "photo" ? setZoom(p0.zoom * s) : setFrameScale(p0.v * s); }
@@ -123,8 +130,8 @@
     if (!S.live) draw();
   });
   const up = e => { ptrs.delete(e.pointerId); if (ptrs.size < 2) p0 = null; };
-  canvas.addEventListener("pointerup", up); canvas.addEventListener("pointercancel", up);
-  canvas.addEventListener("wheel", e => { e.preventDefault(); const f = e.deltaY < 0 ? 1.06 : .94; S.mode === "photo" ? setZoom(S.zoom * f) : setFrameScale(S.face.r / S.base[2] * f); if (!S.live) draw(); }, { passive: false });
+  grab.addEventListener("pointerup", up); grab.addEventListener("pointercancel", up);
+  grab.addEventListener("wheel", e => { e.preventDefault(); const f = e.deltaY < 0 ? 1.06 : .94; S.mode === "photo" ? setZoom(S.zoom * f) : setFrameScale(S.face.r / S.base[2] * f); if (!S.live) draw(); }, { passive: false });
 
   let url = null, blob = null;
   function save() {
