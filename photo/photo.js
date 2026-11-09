@@ -67,6 +67,7 @@
       c.fillText(tr("얼굴 자리", "Face here"), cx, cy);
     }
     if (S.front) c.drawImage(S.front, 0, 0, W, H);   // 앞에 있는 물체(나무 기둥 등)는 사진 위로 다시 덮기
+    drawStickers(c, W, H);
     if (editor && S.mode === "frame") {
       c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.setLineDash([r * .14, r * .1]);
       c.lineWidth = Math.max(2.5, r * .05); c.strokeStyle = "#151515"; c.stroke(); c.lineWidth = Math.max(1, r * .02); c.strokeStyle = "#FFFF00"; c.stroke(); c.setLineDash([]);
@@ -78,8 +79,8 @@
     grab.style.top = (canvas.offsetTop + f.cy * canvas.height * k - r) + "px";
     grab.style.width = grab.style.height = (2 * r) + "px";
   }
-  const draw = () => { render(ctx, canvas.width, canvas.height, true); placeGrab(); };
-  window.addEventListener("resize", placeGrab);
+  const draw = () => { render(ctx, canvas.width, canvas.height, true); placeGrab(); placeStickers(); };
+  window.addEventListener("resize", () => { placeGrab(); placeStickers(); });
   let raf = 0;
   function loop() { cancelAnimationFrame(raf); const step = () => { draw(); if (S.live) raf = requestAnimationFrame(step); }; step(); }
   function showButtons() { $("#btnsIdle").hidden = S.live || !!S.photo; $("#btnsLive").hidden = !S.live; $("#btnsDone").hidden = S.live || !S.photo; }
@@ -149,6 +150,75 @@
   grab.addEventListener("pointerup", up); grab.addEventListener("pointercancel", up);
   grab.addEventListener("wheel", e => { e.preventDefault(); const f = e.deltaY < 0 ? 1.06 : .94; S.mode === "photo" ? setZoom(S.zoom * f) : setFrameScale(S.face.r / S.base[2] * f); if (!S.live) draw(); }, { passive: false });
 
+  /* ---------- 스티커 ---------- */
+  const ST = window.PHOTO_STICKERS, layer = $("#stkLayer");
+  const EL_EN = { "목": "Wood", "화": "Fire", "토": "Earth", "금": "Metal", "수": "Water" };
+  const ITEM_EN = { hairpin: "Hairpin", wand: "Princess wand", beanie: "Winter hat", crown: "Crown", ribbon: "Ribbon", glasses: "Star glasses" };
+  const POS = [[.5, .12], [.3, .2], [.7, .2], [.4, .32], [.6, .08], [.22, .38], [.78, .36]];
+  S.stk = []; S.sel = null; S.col = "목"; let sid = 0; const sprites = {};
+  const sprite = s => { const k = s.k + "|" + s.el; if (!sprites[k]) { const im = new Image(); im.onload = () => draw(); im.src = ST.svgURL(s.k in ST.ART ? ST.ART[s.k](ST.EL[s.el]) : ST.ICONS[s.k]); sprites[k] = im; } return sprites[k]; };
+  function drawStickers(c, W, H) {
+    S.stk.forEach(s => { const im = sprite(s); if (!im.complete || !im.naturalWidth) return; const w = s.s * W;
+      c.save(); c.translate(s.x * W, s.y * H); c.rotate(s.r * Math.PI / 180); c.scale(s.f ? -1 : 1, 1); c.drawImage(im, -w / 2, -w / 2, w, w); c.restore(); });
+  }
+  function syncStickers() {                       // 스티커 개수가 바뀔 때만 손잡이(드래그 영역) 다시 만듦
+    const have = new Map([...layer.children].map(e => [+e.dataset.id, e]));
+    have.forEach((e, id) => { if (!S.stk.some(s => s.id === id)) e.remove(); });
+    S.stk.forEach(s => { if (have.has(s.id)) return; layer.appendChild(makeHandle(s)); });
+    layer.querySelectorAll(".pb-sticker").forEach(e => e.classList.toggle("sel", S.sel && +e.dataset.id === S.sel.id));
+    const s = S.sel; $("#stkCtl").hidden = !s; $("#stkClrWrap").hidden = !S.stk.length;
+    if (s) { $("#stkSz").value = Math.round(s.s * 100); $("#stkSzV").textContent = Math.round(s.s * 100) + "%"; $("#stkRt").value = s.r; $("#stkRtV").textContent = s.r + "°"; }
+  }
+  function placeStickers() {
+    const k = canvas.clientWidth / canvas.width;
+    layer.style.left = canvas.offsetLeft + "px"; layer.style.top = canvas.offsetTop + "px"; layer.style.width = canvas.clientWidth + "px"; layer.style.height = canvas.clientHeight + "px";
+    layer.querySelectorAll(".pb-sticker").forEach(e => {
+      const s = S.stk.find(t => t.id === +e.dataset.id); if (!s) return; const w = s.s * canvas.width * k * .85;
+      e.style.left = (s.x * canvas.width * k - w / 2) + "px"; e.style.top = (s.y * canvas.height * k - w / 2) + "px"; e.style.width = e.style.height = w + "px"; e.style.transform = "rotate(" + s.r + "deg)";
+    });
+  }
+  function makeHandle(s) {
+    const e = document.createElement("div"); e.className = "pb-sticker"; e.dataset.id = s.id; const pt = new Map(); let g = null;
+    const two = () => { const [a, b] = [...pt.values()]; return { d: Math.hypot(a.x - b.x, a.y - b.y), a: Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI }; };
+    e.addEventListener("pointerdown", ev => {
+      ev.preventDefault(); ev.stopPropagation(); e.setPointerCapture(ev.pointerId); pt.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+      if (S.sel !== s) { S.sel = s; const i = S.stk.indexOf(s); S.stk.splice(i, 1); S.stk.push(s); syncStickers(); }
+      if (pt.size === 2) { const t = two(); g = { d: t.d, a: t.a, s: s.s, r: s.r }; }
+    });
+    e.addEventListener("pointermove", ev => {
+      const p = pt.get(ev.pointerId); if (!p) return; const rc = canvas.getBoundingClientRect(); const dx = ev.clientX - p.x, dy = ev.clientY - p.y; p.x = ev.clientX; p.y = ev.clientY;
+      if (pt.size === 2 && g) { const t = two(); s.s = Math.min(.7, Math.max(.08, g.s * t.d / g.d)); s.r = Math.round(((g.r + t.a - g.a + 180) % 360 + 360) % 360 - 180); syncStickers(); }
+      else if (pt.size === 1) { s.x = Math.min(1, Math.max(0, s.x + dx / rc.width)); s.y = Math.min(1, Math.max(0, s.y + dy / rc.height)); }
+      if (!S.live) draw();
+    });
+    const up = ev => { pt.delete(ev.pointerId); if (pt.size < 2) g = null; };
+    e.addEventListener("pointerup", up); e.addEventListener("pointercancel", up);
+    e.addEventListener("wheel", ev => { ev.preventDefault(); s.s = Math.min(.7, Math.max(.08, s.s * (ev.deltaY < 0 ? 1.06 : .94))); syncStickers(); draw(); }, { passive: false });
+    return e;
+  }
+  function addSticker(k) {
+    if (S.stk.length >= 24) { toast(tr("스티커는 24개까지 붙일 수 있어요.", "You can add up to 24 stickers.")); return; }
+    const isItem = k in ST.ART, n = S.stk.length % POS.length, s = { id: ++sid, k, el: isItem ? S.col : k, x: POS[n][0], y: POS[n][1], s: isItem ? .3 : .2, r: 0, f: false };
+    S.stk.push(s); S.sel = s; syncStickers(); draw();
+  }
+  grab.addEventListener("pointerdown", () => { if (S.sel) { S.sel = null; syncStickers(); } });
+  $("#stkSz").oninput = e => { if (S.sel) { S.sel.s = e.target.value / 100; syncStickers(); draw(); } };
+  $("#stkRt").oninput = e => { if (S.sel) { S.sel.r = +e.target.value; syncStickers(); draw(); } };
+  $("#stkDel").onclick = () => { if (S.sel) { S.stk.splice(S.stk.indexOf(S.sel), 1); S.sel = null; syncStickers(); draw(); } };
+  $("#stkFlip").onclick = () => { if (S.sel) { S.sel.f = !S.sel.f; draw(); } };
+  $("#stkDup").onclick = () => { if (S.sel) { const n = { ...S.sel, id: ++sid, x: Math.min(.95, S.sel.x + .06), y: Math.min(.95, S.sel.y + .05) }; S.stk.push(n); S.sel = n; syncStickers(); draw(); } };
+  $("#stkClr").onclick = () => { S.stk = []; S.sel = null; syncStickers(); draw(); };
+  function buildStickerPicker() {
+    const en = lang() === "en", L = Object.keys(ST.EL);
+    $("#stkCols").innerHTML = L.map(k => `<button class="pb-tab${k === S.col ? " on" : ""}" data-k="${k}"><span class="dot" style="background:${ST.EL[k].m}"></span>${en ? EL_EN[k] : k}</button>`).join("");
+    $("#stkItems").innerHTML = ST.ITEMS.map(([k, n]) => `<button class="pb-stk" data-k="${k}"><img alt="" src="${ST.svgURL(ST.ART[k](ST.EL[S.col]))}">${en ? ITEM_EN[k] : n}</button>`).join("");
+    $("#stkIcons").innerHTML = L.map(k => `<button class="pb-stk" data-k="${k}"><img alt="" src="${ST.svgURL(ST.ICONS[k])}">${en ? EL_EN[k] : k}</button>`).join("");
+  }
+  $("#stkCols").addEventListener("click", e => { const b = e.target.closest(".pb-tab"); if (!b) return; S.col = b.dataset.k; if (S.sel && S.sel.k in ST.ART) { S.sel.el = S.col; draw(); } buildStickerPicker(); });
+  $("#stkItems").addEventListener("click", e => { const b = e.target.closest(".pb-stk"); if (b) addSticker(b.dataset.k); });
+  $("#stkIcons").addEventListener("click", e => { const b = e.target.closest(".pb-stk"); if (b) addSticker(b.dataset.k); });
+  buildStickerPicker();
+
   let url = null, blob = null, kind = "photo";
   const shareText = () => tr("내 사주 아바타로 사진 찍었어! 너도 해봐 🐾", "I made a photo with my Saju avatar! Try it too 🐾");
   const pageUrl = () => location.origin + "/photo/?ilju=" + encodeURIComponent(S.key) + (lang() === "en" ? "&lang=en" : "");
@@ -210,7 +280,7 @@
   $("#tabs").addEventListener("click", e => { const b = e.target.closest(".pb-tab"); if (!b) return; S.stemTab = b.dataset.s; buildPicker(); });
   $("#grid").addEventListener("click", e => { const b = e.target.closest(".pb-av"); if (!b) return; loadAvatar(b.dataset.g); buildPicker(); });
 
-  window.addEventListener("langchange", () => { buildPicker(); if (S.hintKey) $("#hint").textContent = tr(...HINTS[S.hintKey]); draw(); });
+  window.addEventListener("langchange", () => { buildPicker(); buildStickerPicker(); if (S.hintKey) $("#hint").textContent = tr(...HINTS[S.hintKey]); draw(); });
   window.addEventListener("pagehide", stopCam);
   S.stemTab = S.key[0]; buildPicker();
   loadAvatar(S.key); showButtons(); setHint("pick");
