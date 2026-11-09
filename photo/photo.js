@@ -9,11 +9,11 @@
   const AV = window.PHOTO_AVATARS;
   const q0 = new URLSearchParams(location.search).get("ilju");
   const S = { key: AV[q0] ? q0 : Object.keys(AV)[0], avatar: null, base: [.5, .5, .15], face: { cx: .5, cy: .5, r: .15 },
-    photo: null, live: false, stream: null, facing: "user", mirror: false, zoom: 1, ox: 0, oy: 0, mode: "photo", hintKey: null };
+    photo: null, live: false, stream: null, facing: "user", mirror: false, zoom: 1, rot: 0, ox: 0, oy: 0, mode: "photo", hintKey: null };
 
   const HINTS = {
     pick: ["사진을 찍거나 앨범에서 골라 주세요.", "Take a photo or choose one from your album."],
-    adjust: ["사진을 드래그해서 얼굴을 맞추고, 두 손가락(또는 슬라이더)으로 크기를 조절하세요.", "Drag the photo to fit the face. Pinch or use the slider to resize."],
+    adjust: ["사진을 드래그해서 얼굴을 맞추고, 두 손가락으로 크기·기울기를 조절하세요. (슬라이더도 가능)", "Drag to fit the face. Pinch to resize and twist to rotate (sliders work too)."],
     live: ["얼굴을 동그라미 안에 맞춘 뒤 ‘촬영하기’를 눌러 주세요.", "Fit the face inside the circle, then tap “Take photo”."],
     frame: ["프레임을 드래그해서 아바타 얼굴 위치에 맞춰 보세요.", "Drag the frame to match the avatar’s face."],
     nocam: ["카메라를 쓸 수 없어요. ‘앨범에서 고르기’로 사진을 선택해 주세요.", "Camera isn’t available. Please use “Choose from album”."],
@@ -38,7 +38,11 @@
     const src = S.live ? video : S.photo; if (!src) return; const [sw, sh] = sizeOf(src); if (!sw) return;
     const d = 2 * f.r * W, k = Math.max(d / sw, d / sh) * S.zoom;
     const mx = Math.max(0, (sw * k / 2 - d / 2) / d), my = Math.max(0, (sh * k / 2 - d / 2) / d);
-    S.ox = Math.min(mx, Math.max(-mx, S.ox)); S.oy = Math.min(my, Math.max(-my, S.oy));
+    // 회전한 사진 기준(사진 좌표계)으로 이동 범위를 제한 → 돌려도 동그라미 안이 비지 않음
+    const a = S.rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+    let lx = S.ox * ca + S.oy * sa, ly = -S.ox * sa + S.oy * ca;
+    lx = Math.min(mx, Math.max(-mx, lx)); ly = Math.min(my, Math.max(-my, ly));
+    S.ox = lx * ca - ly * sa; S.oy = lx * sa + ly * ca;
   }
   function render(c, W, H, editor, noPhoto) {
     c.fillStyle = "#fff"; c.fillRect(0, 0, W, H);
@@ -50,7 +54,7 @@
       if (temp.width !== W || temp.height !== H) { temp.width = W; temp.height = H; }
       const t = temp.getContext("2d"); t.setTransform(1, 0, 0, 1, 0, 0); t.globalCompositeOperation = "source-over"; t.clearRect(0, 0, W, H);
       const d = 2 * r, k = Math.max(d / sw, d / sh) * S.zoom, dw = sw * k, dh = sh * k;
-      t.save(); t.translate(cx + S.ox * d, cy + S.oy * d); if (S.mirror) t.scale(-1, 1); t.drawImage(src, -dw / 2, -dh / 2, dw, dh); t.restore();
+      t.save(); t.translate(cx + S.ox * d, cy + S.oy * d); t.rotate(S.rot * Math.PI / 180); if (S.mirror) t.scale(-1, 1); t.drawImage(src, -dw / 2, -dh / 2, dw, dh); t.restore();
       t.globalCompositeOperation = "destination-in";
       const g = t.createRadialGradient(cx, cy, r * .93, cx, cy, r); g.addColorStop(0, "rgba(0,0,0,1)"); g.addColorStop(1, "rgba(0,0,0,0)");
       t.fillStyle = g; t.fillRect(0, 0, W, H); t.globalCompositeOperation = "source-over";
@@ -79,7 +83,7 @@
   let raf = 0;
   function loop() { cancelAnimationFrame(raf); const step = () => { draw(); if (S.live) raf = requestAnimationFrame(step); }; step(); }
   function showButtons() { $("#btnsIdle").hidden = S.live || !!S.photo; $("#btnsLive").hidden = !S.live; $("#btnsDone").hidden = S.live || !S.photo; }
-  const resetZoom = () => { S.zoom = 1; S.ox = 0; S.oy = 0; $("#zoom").value = 1; $("#zoomVal").textContent = "100%"; };
+  const resetZoom = () => { S.zoom = 1; S.rot = 0; S.ox = 0; S.oy = 0; $("#zoom").value = 1; $("#zoomVal").textContent = "100%"; $("#rot").value = 0; $("#rotVal").textContent = "0°"; };
 
   function stopCam() { if (S.stream) S.stream.getTracks().forEach(t => t.stop()); S.stream = null; S.live = false; video.srcObject = null; }
   async function startCam() {
@@ -114,23 +118,30 @@
 
   function setMode(m) {
     S.mode = m; $("#modePhoto").classList.toggle("on", m === "photo"); $("#modeFrame").classList.toggle("on", m === "frame");
-    $("#rowZoom").hidden = m !== "photo"; $("#rowFrame").hidden = m !== "frame";
+    $("#rowZoom").hidden = m !== "photo"; $("#rowRot").hidden = m !== "photo"; $("#rowFrame").hidden = m !== "frame";
     setHint(m === "frame" ? "frame" : (S.photo ? "adjust" : S.live ? "live" : "pick")); draw();
   }
   $("#modePhoto").onclick = () => setMode("photo"); $("#modeFrame").onclick = () => setMode("frame");
   const setZoom = z => { S.zoom = Math.min(3, Math.max(1, z)); $("#zoom").value = S.zoom; $("#zoomVal").textContent = Math.round(S.zoom * 100) + "%"; };
   const setFrameScale = v => { v = Math.min(1.8, Math.max(.6, v)); S.face.r = S.base[2] * v; $("#frameSize").value = v; $("#frameVal").textContent = Math.round(v * 100) + "%"; };
+  const setRot = v => { v = Math.round(Math.max(-180, Math.min(180, v))); S.rot = v; $("#rot").value = v; $("#rotVal").textContent = v + "°"; };
+  const normRot = v => { v = ((v + 180) % 360 + 360) % 360 - 180; return v; };
+  $("#rot").oninput = e => { setRot(+e.target.value); draw(); };
+  $("#rotL").onclick = () => { setRot(normRot(S.rot - 90)); draw(); };
+  $("#rotR").onclick = () => { setRot(normRot(S.rot + 90)); draw(); };
+  $("#rotReset").onclick = () => { setRot(0); draw(); };
   $("#zoom").oninput = e => { setZoom(+e.target.value); draw(); };
   $("#frameSize").oninput = e => { setFrameScale(+e.target.value); draw(); };
   $("#frameReset").onclick = () => { S.face = { cx: S.base[0], cy: S.base[1], r: S.base[2] }; setFrameScale(1); draw(); };
 
   const ptrs = new Map(); let p0 = null;
   const dist = () => { const [a, b] = [...ptrs.values()]; return Math.hypot(a.x - b.x, a.y - b.y); };
-  grab.addEventListener("pointerdown", e => { grab.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) p0 = { d: dist(), zoom: S.zoom, v: S.face.r / S.base[2] }; });
+  const ang = () => { const [a, b] = [...ptrs.values()]; return Math.atan2(b.y - a.y, b.x - a.x) * 180 / Math.PI; };
+  grab.addEventListener("pointerdown", e => { grab.setPointerCapture(e.pointerId); ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY }); if (ptrs.size === 2) p0 = { d: dist(), a: ang(), zoom: S.zoom, rot: S.rot, v: S.face.r / S.base[2] }; });
   grab.addEventListener("pointermove", e => {
     const p = ptrs.get(e.pointerId); if (!p) return;
     const k = canvas.width / canvas.getBoundingClientRect().width, dx = (e.clientX - p.x) * k, dy = (e.clientY - p.y) * k; p.x = e.clientX; p.y = e.clientY;
-    if (ptrs.size === 2 && p0) { const s = dist() / p0.d; S.mode === "photo" ? setZoom(p0.zoom * s) : setFrameScale(p0.v * s); }
+    if (ptrs.size === 2 && p0) { const s = dist() / p0.d; if (S.mode === "photo") { setZoom(p0.zoom * s); setRot(normRot(p0.rot + ang() - p0.a)); } else setFrameScale(p0.v * s); }
     else if (ptrs.size === 1) { if (S.mode === "photo") { const d = 2 * S.face.r * canvas.width; S.ox += dx / d; S.oy += dy / d; } else { S.face.cx += dx / canvas.width; S.face.cy += dy / canvas.height; } }
     if (!S.live) draw();
   });
