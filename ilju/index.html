@@ -82,6 +82,7 @@
           <div class="il-info" id="info"></div>
           <div class="il-actions">
             <a class="btn btn-yellow" id="goToday" data-en="See my condition today">오늘 내 컨디션 보러가기</a>
+            <a class="btn btn-dark" id="goPhoto" data-en="Go to Saju Avatar Photo Booth">사주 아바타 포토부스 가기</a>
             <button class="btn btn-line" id="again" type="button" data-en="Enter again">다시 입력하기</button>
           </div>
         </div>
@@ -136,6 +137,7 @@
       $("#hanja").textContent = L === "ko" ? I18N.iljuHanja(g) : I18N.avatarName(g, L);
       $("#title").textContent = I18N.title(g, L);
       renderInfo(g, L);
+      $("#goPhoto").href = "../photo/?ilju=" + encodeURIComponent(g) + (L === "en" ? "&lang=en" : "");
       $("#goToday").href = "../today/index.html?ilju=" + encodeURIComponent(g) + (L === "en" ? "&lang=en" : "");
     }
 

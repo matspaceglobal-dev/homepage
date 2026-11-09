@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>아바타 포토부스 | 맛스페이스</title>
+<title>사주 아바타 포토부스 | 맛스페이스</title>
 <meta name="description" content="내 아바타의 얼굴 자리에 사진을 쏙! 촬영하고 바로 저장하는 맛스페이스 아바타 포토부스.">
 <meta name="theme-color" content="#151515">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
@@ -22,6 +22,9 @@
   .pb-panel { background: var(--gray-50); border-radius: var(--radius-lg); padding: 30px; }
   .pb-step + .pb-step { margin-top: 30px; padding-top: 30px; border-top: 2px solid var(--gray-100); }
   .pb-h { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+  .pb-hrow { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; justify-content: space-between; margin: 0 0 14px; }
+  .pb-hrow .pb-h { margin: 0; }
+  .pb-find { font-size: 14px; font-weight: 800; color: var(--ink); text-decoration: none; border-bottom: 3px solid var(--yellow); }
   .pb-n { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--yellow); font-size: 14px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
   .pb-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 12px; scrollbar-width: none; }
   .pb-tabs::-webkit-scrollbar { display: none; }
@@ -69,13 +72,13 @@
   }
 </style>
 </head>
-<body data-root="../" data-page="photo" data-title-en="Avatar Photo Booth | Mat Space">
+<body data-root="../" data-page="photo" data-title-en="Saju Avatar Photo Booth | Mat Space">
   <div id="site-header"></div>
   <main>
     <section class="page-hero">
       <div class="blob blob-1" aria-hidden="true"></div>
       <div class="container">
-        <h1 data-en="Avatar Photo Booth">아바타 포토부스</h1>
+        <h1 data-en="Saju Avatar Photo Booth">사주 아바타 포토부스</h1>
         <p data-en="Pop a face into your avatar’s frame, snap it, and save it.">아바타의 얼굴 자리에 사진을 쏙! 찍어서 바로 저장해요.</p>
       </div>
     </section>
@@ -125,7 +128,10 @@
             </div>
           </div>
           <div class="pb-step">
-            <h2 class="pb-h"><span class="pb-n">3</span><span data-en="Pick another avatar">다른 아바타 고르기</span></h2>
+            <div class="pb-hrow">
+              <h2 class="pb-h"><span class="pb-n">3</span><span data-en="Pick another avatar">다른 아바타 고르기</span></h2>
+              <a class="pb-find" href="../ilju/" data-en="Don’t know your Ilju? Find it →">내 일주를 모르면? 일주 찾기 →</a>
+            </div>
             <div class="pb-tabs" id="tabs"></div>
             <div class="pb-grid" id="grid"></div>
           </div>
