@@ -51,7 +51,7 @@
   .pb-toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%); z-index: 300; background: var(--ink); color: var(--paper); padding: 14px 20px; border-radius: 999px; font-size: 14px; font-weight: 800; max-width: calc(100vw - 32px); text-align: center; box-shadow: 0 10px 28px rgba(0,0,0,.25); }
   .pb-modal-card .btn-row { gap: 8px; }
   .pb-opt { font-size: 12px; font-weight: 800; color: var(--gray-600); background: var(--paper); border-radius: 999px; padding: 3px 10px; }
-  .pb-stk-help { margin: -4px 0 12px; font-size: 13px; color: var(--gray-600); line-height: 1.5; }
+  .pb-stk-help { margin: -4px 0 12px; word-break: keep-all; font-size: 13px; color: var(--gray-600); line-height: 1.5; }
   .pb-stk-sub { margin: 14px 2px 8px; font-size: 13px; font-weight: 800; color: var(--gray-600); }
   .pb-stk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .pb-stk-icons { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
@@ -65,6 +65,11 @@
   .pb-sticker { position: absolute; pointer-events: auto; touch-action: none; cursor: grab; border-radius: 14px; }
   .pb-sticker.sel { outline: 2.5px dashed #151515; outline-offset: 3px; }
   .pb-sticker.sel::after { content: ""; position: absolute; inset: -3px; border-radius: 16px; box-shadow: 0 0 0 1.5px #FFFF00; pointer-events: none; }
+  .pb-lead { line-height: 1.7; }
+  .pb-fhl { z-index: 3; }
+  .pb-fh { position: absolute; width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; border-radius: 50%; background: var(--yellow); border: 2.5px solid var(--ink); pointer-events: auto; touch-action: none; box-shadow: 0 2px 6px rgba(0,0,0,.25); }
+  .pb-fh::before { content: ""; position: absolute; inset: -14px; }
+  .pb-fh-e, .pb-fh-w { cursor: ew-resize; } .pb-fh-n, .pb-fh-s { cursor: ns-resize; }
   .pb-privacy { margin-top: 14px; font-size: 13px; color: var(--gray-600); line-height: 1.55; text-align: center; word-break: keep-all; }
   [hidden] { display: none !important; }
   .pb-modal { position: fixed; inset: 0; z-index: 200; background: rgba(21,21,21,.8); display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
@@ -97,21 +102,22 @@
       <div class="blob blob-1" aria-hidden="true"></div>
       <div class="container">
         <h1 data-en="Saju Avatar Photo Booth">사주 아바타 포토부스</h1>
-        <p data-en="Pop a face into your avatar’s frame, snap it, and save it.<br>Your photo is never uploaded or stored on our server, so no worries.">아바타의 얼굴 자리에 사진을 쏙! 찍어서 바로 저장해요.<br>서버로 전송되거나 저장되지 않으니 안심하세요.</p>
+        <p class="pb-lead" data-en="Fill in the elements your Ilju avatar is missing with stickers.<br>Put your own face, your partner’s, your kid’s or your favourite star’s onto your avatar and decorate it with Five-Element stickers.<br>Your photo is never uploaded or stored on our server, so no worries.">내 일주 아바타에 부족한 오행 기운을 스티커로 채워보세요.<br>내 얼굴, 연인 얼굴, 아이 얼굴, 좋아하는 연예인 얼굴까지 아바타에 쏙 넣고 오행 스티커로 꾸밀 수 있어요.<br>서버로 전송되거나 저장되지 않으니 안심하세요.</p>
       </div>
     </section>
     <section class="pb-body">
       <div class="container pb-app">
         <div class="pb-stage">
-          <div class="pb-canvas-wrap"><canvas id="stage" class="pb-canvas" width="720" height="1080"></canvas><div id="grab" class="pb-grab"></div><div id="stkLayer" class="pb-layer"></div></div>
+          <div class="pb-canvas-wrap"><canvas id="stage" class="pb-canvas" width="720" height="1080"></canvas><div id="grab" class="pb-grab"></div><div id="fhLayer" class="pb-layer pb-fhl"></div><div id="stkLayer" class="pb-layer"></div></div>
           <p class="pb-hint" id="hint"></p>
         </div>
         <div class="pb-panel">
           <div class="pb-step">
-            <h2 class="pb-h"><span class="pb-n">1</span><span data-en="Take or choose a photo">사진 찍기 · 고르기</span></h2>
+            <h2 class="pb-h"><span class="pb-n">1</span><span data-en="Add a photo">사진 넣기</span><span class="pb-opt" data-en="optional">선택</span></h2>
+            <p class="pb-stk-help" data-en="Only if you want a face in your avatar. Take a photo or pick one, and it drops straight into the avatar’s face spot. You can skip this and just use stickers.">얼굴을 넣고 싶을 때만 눌러 주세요. 카메라로 찍거나 앨범에서 고르면 아바타의 얼굴 자리에 바로 들어가요. 건너뛰고 스티커로만 꾸며도 괜찮아요.</p>
             <div class="pb-btns" id="btnsIdle">
-              <button class="btn btn-dark" id="btnCam" data-en="Open camera">카메라 켜기</button>
-              <button class="btn btn-line" id="btnFile" data-en="Choose from album">앨범에서 고르기</button>
+              <button class="btn btn-dark" id="btnCam" data-en="Take a photo">카메라로 찍어 넣기</button>
+              <button class="btn btn-line" id="btnFile" data-en="Pick from album">앨범에서 골라 넣기</button>
             </div>
             <div class="pb-btns" id="btnsLive" hidden>
               <button class="btn btn-yellow" id="btnShot" data-en="Take photo">촬영하기</button>
@@ -121,18 +127,20 @@
             <div class="pb-btns" id="btnsDone" hidden>
               <button class="btn btn-dark" id="btnRetake" data-en="Retake">다시 찍기</button>
               <button class="btn btn-line" id="btnFile2" data-en="Choose another">다른 사진 고르기</button>
+              <button class="btn btn-line" id="btnRemove" data-en="Remove photo">사진 빼기</button>
             </div>
             <input type="file" id="file" accept="image/*" hidden>
             <input type="file" id="fileCam" accept="image/*" capture="user" hidden>
           </div>
-          <div class="pb-step">
+          <div class="pb-step" id="stepFit" hidden>
             <h2 class="pb-h"><span class="pb-n">2</span><span data-en="Fit your photo">사진 맞추기</span></h2>
+            <p class="pb-stk-help" data-en="“Move photo” shifts and resizes the picture inside the frame. “Move frame” changes the frame itself — position, width and height — so you can fit a whole face, or only the eyes.">‘사진 맞추기’는 프레임 안에서 사진을 옮기고 키우고 돌려요. ‘프레임 맞추기’는 프레임 자체의 위치와 가로·세로 모양을 바꿔요. 얼굴 전체도, 눈만도 넣을 수 있어요.</p>
             <div class="pb-seg">
               <button id="modePhoto" class="on" data-en="Move photo">사진 맞추기</button>
               <button id="modeFrame" data-en="Move frame">프레임 맞추기</button>
             </div>
             <div class="pb-row" id="rowZoom">
-              <label><span data-en="Face size">얼굴 크기</span><span class="v" id="zoomVal">100%</span></label>
+              <label><span data-en="Photo size">사진 크기</span><span class="v" id="zoomVal">100%</span></label>
               <input type="range" id="zoom" min="1" max="3" step="0.01" value="1">
             </div>
             <div class="pb-row" id="rowRot">
@@ -141,9 +149,12 @@
               <div class="btn-row" style="margin-top:10px;gap:8px"><button class="btn btn-line btn-sm" id="rotL" data-en="↺ 90°">↺ 90°</button><button class="btn btn-line btn-sm" id="rotR" data-en="↻ 90°">↻ 90°</button><button class="btn btn-line btn-sm" id="rotReset" data-en="Reset">기울기 초기화</button></div>
             </div>
             <div class="pb-row" id="rowFrame" hidden>
-              <label><span data-en="Frame size">프레임 크기</span><span class="v" id="frameVal">100%</span></label>
-              <input type="range" id="frameSize" min="0.6" max="1.8" step="0.01" value="1">
-              <div class="btn-row" style="margin-top:12px"><button class="btn btn-line btn-sm" id="frameReset" data-en="Reset frame">프레임 처음 위치로</button></div>
+              <label><span data-en="Frame width">프레임 가로</span><span class="v" id="frameWVal">100%</span></label>
+              <input type="range" id="frameW" min="0.3" max="3.5" step="0.01" value="1">
+              <label style="margin-top:12px"><span data-en="Frame height">프레임 세로</span><span class="v" id="frameHVal">100%</span></label>
+              <input type="range" id="frameH" min="0.3" max="3.5" step="0.01" value="1">
+              <p class="pb-stk-help" style="margin:10px 0 0" data-en="Tip: you can also drag the dots on the frame’s edge with your finger or mouse.">팁: 그림 위 프레임 테두리의 동그란 점을 손가락이나 마우스로 끌어도 돼요.</p>
+              <div class="btn-row" style="margin-top:12px"><button class="btn btn-line btn-sm" id="frameReset" data-en="Reset frame">프레임 처음 모양으로</button></div>
             </div>
           </div>
           <div class="pb-step">
@@ -163,10 +174,9 @@
           <div class="pb-step">
             <h2 class="pb-h"><span class="pb-n">4</span><span data-en="Save &amp; share">저장하고 공유하기</span></h2>
             <div class="pb-row">
-              <button class="btn btn-yellow pb-save" id="btnSave" data-en="Save with my photo">내 사진 넣어서 저장하기</button>
+              <button class="btn btn-yellow pb-save" id="btnSave" data-en="Save my avatar">내 아바타 저장하기</button>
               <div class="pb-sub">
-                <button class="btn btn-line" id="btnArt" data-en="Save illustration only (no photo)">일러스트만 저장 <small>(사진 없이)</small></button>
-                <button class="btn btn-dark" id="btnShare" data-en="Share with a friend">친구에게 공유하기</button>
+                <button class="btn btn-dark" id="btnShare" style="flex:1 1 100%" data-en="Share with a friend">친구에게 공유하기</button>
               </div>
               <p class="pb-privacy" data-en="Your photo is processed only on this device. It is never uploaded or stored on our server.">사진은 지금 쓰는 기기 안에서만 처리돼요. 서버로 전송되거나 저장되지 않아요.</p>
             </div>
