@@ -10,6 +10,8 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../style.css">
 <style>
+  /* 공통 스타일의 overflow-x:hidden 은 고정(sticky) 미리보기를 막아서 이 페이지에서만 clip 으로 대체 */
+  html, body { overflow-x: clip; }
   .pb-body { padding: 56px 0 100px; }
   .pb-app { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 24px; align-items: start; }
   .pb-stage { position: sticky; top: 92px; background: var(--gray-50); border-radius: var(--radius-lg); padding: 20px; }
@@ -50,9 +52,21 @@
   .pb-modal-card h3 { margin: 4px 0 14px; font-size: 20px; font-weight: 800; }
   .pb-modal-card p { font-size: 13px; color: var(--gray-600); margin: 12px 0 16px; line-height: 1.5; }
   .pb-modal-card .btn-row { justify-content: center; }
-  @media (max-width: 900px) { .pb-app { grid-template-columns: 1fr; } .pb-stage { position: static; padding: 14px; }
-    .pb-canvas-wrap { display: flex; justify-content: center; }
-    .pb-canvas { width: auto; max-width: 100%; max-height: 50vh; max-height: 50svh; } .pb-panel { padding: 22px 18px; } .pb-body { padding-top: 36px; } }
+  .pb-app > * { min-width: 0; }
+  .pb-btns .btn { min-width: 0; }
+  @media (max-width: 900px) {
+    .pb-app { display: block; }
+    .pb-stage { margin-bottom: 14px; }
+    /* 미리보기는 화면 위에 고정 → 아래 조절 버튼을 만지면서 바로 확인 */
+    .pb-stage { position: sticky; top: 70px; z-index: 20; padding: 10px; border-radius: 26px; box-shadow: 0 10px 28px rgba(0,0,0,.14); }
+    .pb-canvas-wrap { display: flex; justify-content: center; border-radius: 20px; }
+    .pb-canvas { width: auto; max-width: 100%; max-height: 36vh; max-height: 36svh; }
+    .pb-hint { margin: 8px 4px 0; font-size: 12.5px; min-height: 0; }
+    .pb-panel { padding: 22px 18px; }
+    .pb-body { padding: 20px 0 80px; }
+    .pb-grid { grid-template-columns: repeat(3, 1fr); }
+    .page-hero { padding: 100px 0 36px; }
+  }
 </style>
 </head>
 <body data-root="../" data-page="photo" data-title-en="Avatar Photo Booth | Mat Space">
@@ -73,12 +87,7 @@
         </div>
         <div class="pb-panel">
           <div class="pb-step">
-            <h2 class="pb-h"><span class="pb-n">1</span><span data-en="Pick an avatar">아바타 고르기</span></h2>
-            <div class="pb-tabs" id="tabs"></div>
-            <div class="pb-grid" id="grid"></div>
-          </div>
-          <div class="pb-step">
-            <h2 class="pb-h"><span class="pb-n">2</span><span data-en="Take or choose a photo">사진 찍기 · 고르기</span></h2>
+            <h2 class="pb-h"><span class="pb-n">1</span><span data-en="Take or choose a photo">사진 찍기 · 고르기</span></h2>
             <div class="pb-btns" id="btnsIdle">
               <button class="btn btn-dark" id="btnCam" data-en="Open camera">카메라 켜기</button>
               <button class="btn btn-line" id="btnFile" data-en="Choose from album">앨범에서 고르기</button>
@@ -96,7 +105,7 @@
             <input type="file" id="fileCam" accept="image/*" capture="user" hidden>
           </div>
           <div class="pb-step">
-            <h2 class="pb-h"><span class="pb-n">3</span><span data-en="Fit &amp; save">맞추고 저장하기</span></h2>
+            <h2 class="pb-h"><span class="pb-n">2</span><span data-en="Fit &amp; save">맞추고 저장하기</span></h2>
             <div class="pb-seg">
               <button id="modePhoto" class="on" data-en="Move photo">사진 맞추기</button>
               <button id="modeFrame" data-en="Move frame">프레임 맞추기</button>
@@ -114,6 +123,11 @@
               <button class="btn btn-yellow pb-save" id="btnSave" data-en="Save photo">사진 저장하기</button>
               <p class="pb-privacy" data-en="Your photo is processed only on this device. It is never uploaded or stored on our server.">사진은 지금 쓰는 기기 안에서만 처리돼요. 서버로 전송되거나 저장되지 않아요.</p>
             </div>
+          </div>
+          <div class="pb-step">
+            <h2 class="pb-h"><span class="pb-n">3</span><span data-en="Pick another avatar">다른 아바타 고르기</span></h2>
+            <div class="pb-tabs" id="tabs"></div>
+            <div class="pb-grid" id="grid"></div>
           </div>
         </div>
       </div>
