@@ -40,11 +40,11 @@
     const mx = Math.max(0, (sw * k / 2 - d / 2) / d), my = Math.max(0, (sh * k / 2 - d / 2) / d);
     S.ox = Math.min(mx, Math.max(-mx, S.ox)); S.oy = Math.min(my, Math.max(-my, S.oy));
   }
-  function render(c, W, H, editor) {
+  function render(c, W, H, editor, noPhoto) {
     c.fillStyle = "#fff"; c.fillRect(0, 0, W, H);
     if (S.avatar) c.drawImage(S.avatar, 0, 0, W, H);
     const f = S.face, cx = f.cx * W, cy = f.cy * H, r = f.r * W;
-    const src = S.live ? video : S.photo, [sw, sh] = src ? sizeOf(src) : [0, 0];
+    const src = noPhoto ? null : (S.live ? video : S.photo), [sw, sh] = src ? sizeOf(src) : [0, 0];
     if (src && sw) {
       clampPan(W, f);
       if (temp.width !== W || temp.height !== H) { temp.width = W; temp.height = H; }
@@ -138,22 +138,52 @@
   grab.addEventListener("pointerup", up); grab.addEventListener("pointercancel", up);
   grab.addEventListener("wheel", e => { e.preventDefault(); const f = e.deltaY < 0 ? 1.06 : .94; S.mode === "photo" ? setZoom(S.zoom * f) : setFrameScale(S.face.r / S.base[2] * f); if (!S.live) draw(); }, { passive: false });
 
-  let url = null, blob = null;
-  function save() {
-    if (S.live) shoot(); if (!S.photo) { setHint("needPhoto"); return; }
+  let url = null, blob = null, kind = "photo";
+  const shareText = () => tr("내 사주 아바타로 사진 찍었어! 너도 해봐 🐾", "I made a photo with my Saju avatar! Try it too 🐾");
+  const pageUrl = () => location.origin + "/photo/?ilju=" + encodeURIComponent(S.key) + (lang() === "en" ? "&lang=en" : "");
+  function toast(msg) {
+    const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { t.hidden = true; }, 2600);
+  }
+  function makeImage(withPhoto) {
     const aw = S.avatar.naturalWidth, ah = S.avatar.naturalHeight, k = Math.max(1, 1200 / Math.max(aw, ah));
     const W = Math.round(aw * k), H = Math.round(ah * k), out = document.createElement("canvas"); out.width = W; out.height = H;
-    const o = out.getContext("2d"); o.imageSmoothingQuality = "high"; const m = S.mode; S.mode = "photo"; render(o, W, H, false); S.mode = m;
-    out.toBlob(b => { if (!b) return; blob = b; if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(b); $("#resultImg").src = url; $("#modal").hidden = false; document.body.classList.add("no-scroll"); }, "image/png");
+    const o = out.getContext("2d"); o.imageSmoothingQuality = "high"; const m = S.mode; S.mode = "photo"; render(o, W, H, false, !withPhoto); S.mode = m;
+    out.toBlob(b => {
+      if (!b) return; blob = b; if (url) URL.revokeObjectURL(url); url = URL.createObjectURL(b); $("#resultImg").src = url; kind = withPhoto ? "photo" : "art";
+      $("#modalTitle").textContent = withPhoto ? tr("완성! 아바타 사진이에요", "Your avatar photo is ready!") : tr("아바타 일러스트예요", "Here’s your avatar illustration");
+      $("#modal").hidden = false; document.body.classList.add("no-scroll");
+    }, "image/png");
   }
+  function save() {
+    if (S.live) shoot(); if (!S.photo) { setHint("needPhoto"); return; }
+    makeImage(true);
+  }
+  function saveArt() { makeImage(false); }
+  const fileName = () => "matspace-avatar-" + S.key + (kind === "art" ? "-illust" : "") + ".png";
   async function download() {
-    if (!blob) return; const name = "matspace-avatar-" + S.key + ".png", file = new File([blob], name, { type: "image/png" });
+    if (!blob) return; const name = fileName(), file = new File([blob], name, { type: "image/png" });
     try { if (navigator.canShare && navigator.canShare({ files: [file] }) && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) { await navigator.share({ files: [file], title: "Mat Space" }); return; } }
     catch (e) { if (e && e.name === "AbortError") return; }
     const a = document.createElement("a"); a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
   }
+  async function copyLink(u) {
+    try { await navigator.clipboard.writeText(u); toast(tr("링크가 복사됐어요. 친구에게 붙여넣기 해주세요!", "Link copied. Paste it to your friend!")); }
+    catch (e) { window.prompt(tr("링크를 복사해 친구에게 보내주세요", "Copy this link to share"), u); }
+  }
+  // 친구에게 공유: 결과 이미지가 있으면 이미지+링크, 없으면 링크만
+  async function share(withImage) {
+    const data = { title: tr("맛스페이스 사주 아바타 포토부스", "Mat Space Saju Avatar Photo Booth"), text: shareText(), url: pageUrl() };
+    try {
+      if (withImage && blob) {
+        const file = new File([blob], fileName(), { type: "image/png" });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ ...data, files: [file] }); return; }
+      }
+      if (navigator.share) { await navigator.share(data); return; }
+    } catch (e) { if (e && e.name === "AbortError") return; }
+    copyLink(data.url);
+  }
   const closeModal = () => { $("#modal").hidden = true; document.body.classList.remove("no-scroll"); };
-  $("#btnSave").onclick = save; $("#btnDl").onclick = download; $("#btnClose").onclick = closeModal;
+  $("#btnSave").onclick = save; $("#btnArt").onclick = saveArt; $("#btnShare").onclick = () => share(false); $("#btnShareImg").onclick = () => share(true); $("#btnDl").onclick = download; $("#btnClose").onclick = closeModal;
   $("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
 
   /* ---------- 아바타 고르기 ---------- */
