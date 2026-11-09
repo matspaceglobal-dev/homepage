@@ -36,6 +36,7 @@
           </div>
         </div>
         ${t("오늘 내 컨디션", "My Condition Today", "a", 'data-link="today/index.html" data-nav="today"')}
+        ${t("아바타 포토", "Avatar Photo", "a", 'data-link="photo/" data-nav="photo"')}
         ${t("공고", "Notice", "a", 'data-link="notice/" data-nav="notice"')}
         ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
       </nav>
@@ -52,6 +53,7 @@
       ${t("서비스", "Services", "p", 'class="mm-group"')}
       ${services.map(s => t("└ " + s.name, "└ " + (s.nameEn || s.name), "a", `class="mm-sub" data-link="${s.path}"`)).join("")}
       ${t("오늘 내 컨디션", "My Condition Today", "a", 'data-link="today/index.html"')}
+      ${t("아바타 포토", "Avatar Photo", "a", 'data-link="photo/"')}
       ${t("공고", "Notice", "a", 'data-link="notice/"')}
       ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
       ${t("사주일기 시작하기", "Start Saju Diary", "a", 'class="btn btn-yellow btn-block app-link" target="_blank" rel="noopener"')}
@@ -71,6 +73,7 @@
           ${t("서비스", "Services", "p", 'class="footer-key"')}
           ${services.map(s => t(s.name, s.nameEn || s.name, "a", `data-link="${s.path}"`)).join("")}
           ${t("오늘 내 컨디션", "My Condition Today", "a", 'data-link="today/index.html"')}
+          ${t("아바타 포토", "Avatar Photo", "a", 'data-link="photo/"')}
         </div>
         <div>
           ${t("회사", "Company", "p", 'class="footer-key"')}
