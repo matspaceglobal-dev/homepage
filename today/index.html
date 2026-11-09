@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>오늘 내 상태 확인하기 | 맛스페이스</title>
-<meta name="description" content="60갑자 일주 아바타가 오늘의 기운을 알려드려요. 맛스페이스 오늘 내 상태 확인하기">
-<meta property="og:title" content="오늘 내 상태 확인하기 | 맛스페이스">
+<title>오늘 내 컨디션 | 맛스페이스</title>
+<meta name="description" content="60갑자 일주 아바타가 오늘의 기운을 알려드려요. 맛스페이스 오늘 내 컨디션">
+<meta property="og:title" content="오늘 내 컨디션 | 맛스페이스">
 <meta property="og:description" content="내 일주 아바타는 오늘 어떤 하루를 보낼까?">
 <meta name="theme-color" content="#151515">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
@@ -13,7 +13,7 @@
 <link rel="stylesheet" href="../style.css">
 <style>
   /* =========================================================
-     오늘 내 상태 확인하기 — 홈페이지 디자인(블랙 · 화이트 · 옐로우)에 맞춘 스타일
+     오늘 내 컨디션 — 홈페이지 디자인(블랙 · 화이트 · 옐로우)에 맞춘 스타일
      ========================================================= */
   .today-hero .container { position: relative; }
   .today-chip { display: inline-block; margin-top: 24px; font-size: 14px; font-weight: 700; color: var(--paper);
@@ -160,7 +160,7 @@
   @media (prefers-reduced-motion: reduce) { .body, .twin, .p { animation: none !important; } }
 </style>
 </head>
-<body data-root="../" data-page="today" data-title-en="Check My Vibe Today | Mat Space">
+<body data-root="../" data-page="today" data-title-en="My Condition Today | Mat Space">
 <div id="site-header"></div>
 
 <main class="today-app">
@@ -246,7 +246,7 @@
 <script src="../config.js"></script>
 <script src="../layout.js"></script>
 
-<!-- ===== 오늘 내 상태 확인하기 (원본 기능 그대로) ===== -->
+<!-- ===== 오늘 내 컨디션 (원본 기능 그대로) ===== -->
 <script src="saju.js"></script>
 <script src="i18n.js"></script>
 <script src="lines.js"></script>
@@ -261,7 +261,7 @@ const CONFIG = {
 /* ===== 화면 문구 (한국어 / English) — 자유롭게 수정 가능 ===== */
 const TXT = {
   ko: {
-    title: '오늘 내 상태 확인하기 | 맛스페이스', home: '← 맛스페이스 홈', eyebrow: 'MAT SPACE · 60갑자 아바타',
+    title: '오늘 내 컨디션 | 맛스페이스', home: '← 맛스페이스 홈', eyebrow: 'MAT SPACE · 60갑자 아바타',
     h1: '오늘 내 컨디션', heroP: '나의 일주 아바타가<br>오늘 어떤 하루를 보내는지 보여드려요.',
     pickTitle: '나의 일주를 골라주세요', find: '내 일주를 모르면? 일주 찾기 →', search: '일주 검색 (예: 병인)', all: '전체',
     tab: (s) => I18N.UI.ko.stemTab(s).replace(' 일간', ''), group: (s) => I18N.UI.ko.stemGroup(s),
@@ -296,7 +296,7 @@ const TXT = {
       '정재':'차곡차곡 저금','편관':'드러누움','정관':'넥타이 매고 차렷','편인':'멍때리는 중','정인':'포근하게 받기만' }
   },
   en: {
-    title: 'Check My Vibe Today | Mat Space', home: '← Mat Space Home', eyebrow: 'MAT SPACE · 60 GAPJA AVATARS',
+    title: 'My Condition Today | Mat Space', home: '← Mat Space Home', eyebrow: 'MAT SPACE · 60 GAPJA AVATARS',
     h1: 'My Condition Today', heroP: 'Your Ilju avatar<br>shows you what kind of day you\'re in for.',
     pickTitle: 'Choose your Ilju (Day Pillar)', find: "Don't know your Ilju? Find it →", search: 'Search (e.g. ST, Sun Tiger, Tiger)', all: 'All',
     tab: (s) => I18N.UI.en.stemTab(s), group: (s) => I18N.UI.en.stemGroup(s),

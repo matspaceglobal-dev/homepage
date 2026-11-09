@@ -32,11 +32,17 @@
   .il-name { font-size: clamp(40px, 9vw, 56px); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin: 0; }
   .il-hanja { font-size: 18px; color: var(--gray-400); font-weight: 700; margin: 4px 0 14px; }
   .il-title { font-size: 18px; font-weight: 800; margin: 0 0 8px; word-break: keep-all; }
-  .il-desc { font-size: 15px; color: var(--gray-600); line-height: 1.65; margin: 0 0 24px; word-break: keep-all; }
+  .il-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0 26px; text-align: left; }
+  .il-i { background: var(--paper); border-radius: 22px; padding: 16px 14px 15px; }
+  .il-i small { display: block; font-size: 12px; font-weight: 800; color: var(--gray-400); letter-spacing: .02em; margin-bottom: 8px; }
+  .il-i b { display: flex; align-items: center; gap: 7px; font-size: 24px; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; white-space: nowrap; }
+  .il-i em { display: block; font-style: normal; font-size: 13px; font-weight: 700; color: var(--gray-400); margin-top: 5px; min-height: 17px; }
+  .il-dot { width: 11px; height: 11px; border-radius: 50%; flex: 0 0 auto; }
+  .e-목 { background: #5BBF4A; } .e-화 { background: #F0503C; } .e-토 { background: #E9B730; } .e-금 { background: #B9BCC2; } .e-수 { background: #3C8CE8; }
   .il-actions { display: grid; gap: 10px; }
   .il-links { margin-top: 16px; font-size: 14px; }
   .il-links a { font-weight: 800; border-bottom: 3px solid var(--yellow); }
-  @media (max-width: 560px) { .il-card { padding: 30px 20px; } .il-body { padding-top: 40px; } }
+  @media (max-width: 560px) { .il-card { padding: 30px 20px; } .il-body { padding-top: 40px; } .il-info { gap: 8px; } .il-i { padding: 14px 10px 13px; } .il-i b { font-size: 20px; } }
 </style>
 </head>
 <body data-root="../" data-page="ilju" data-title-en="Find My Ilju | Mat Space">
@@ -73,7 +79,7 @@
           <p class="il-name" id="name"></p>
           <p class="il-hanja" id="hanja"></p>
           <p class="il-title" id="title"></p>
-          <p class="il-desc" id="desc"></p>
+          <div class="il-info" id="info"></div>
           <div class="il-actions">
             <a class="btn btn-yellow" id="goToday" data-en="See my condition today">오늘 내 컨디션 보러가기</a>
             <button class="btn btn-line" id="again" type="button" data-en="Enter again">다시 입력하기</button>
@@ -97,6 +103,30 @@
     function showErr(ko, en) { errKey = [ko, en]; $("#err").textContent = tr(ko, en); }
     function clearErr() { errKey = null; $("#err").textContent = ""; }
 
+    const BR_ELEM = { "자": "수", "축": "토", "인": "목", "묘": "목", "진": "토", "사": "화", "오": "화", "미": "토", "신": "금", "유": "금", "술": "토", "해": "수" };
+    const EL_HANJA = { "목": "木", "화": "火", "토": "土", "금": "金", "수": "水" };
+    const STEM_HANJA = "甲乙丙丁戊己庚辛壬癸", BR_HANJA = "子丑寅卯辰巳午未申酉戌亥";
+    function renderInfo(g, L) {
+      const stem = g[0], br = g[1], se = SAJU.elementOf(stem), be = BR_ELEM[br];
+      const sh = STEM_HANJA[SAJU.STEMS.indexOf(stem)], bh = BR_HANJA[SAJU.BRANCHES.indexOf(br)];
+      let cards;
+      if (L === "ko") {
+        cards = [
+          ["나의 일간", stem + se, sh + EL_HANJA[se], se],
+          ["나의 일지", br + be, bh + EL_HANJA[be], be],
+          ["나의 일지동물", SAJU.ANIMAL[br], "", null]
+        ];
+      } else {
+        const rm = I18N.iljuName(g, "en").split("-").map(x => x[0].toUpperCase() + x.slice(1));
+        cards = [
+          ["My Day Stem", I18N.ELEM_EN[se], rm[0] + " · " + sh, se],
+          ["My Day Branch", I18N.ELEM_EN[be], rm[1] + " · " + bh, be],
+          ["My Branch Animal", I18N.ANIMAL_EN[br], "", null]
+        ];
+      }
+      $("#info").innerHTML = cards.map(c => `<div class="il-i"><small>${c[0]}</small><b>${c[3] ? `<span class="il-dot e-${c[3]}"></span>` : ""}${c[1]}</b><em>${c[2]}</em></div>`).join("");
+    }
+
     function renderResult() {
       if (!current) return;
       const g = current, L = lang();
@@ -105,9 +135,7 @@
       $("#name").textContent = I18N.iljuName(g, L);
       $("#hanja").textContent = L === "ko" ? I18N.iljuHanja(g) : I18N.avatarName(g, L);
       $("#title").textContent = I18N.title(g, L);
-      let desc = ""; try { desc = I18N.typeDesc(g); } catch (e) {}
-      $("#desc").textContent = L === "ko" ? (desc || "") : "";
-      $("#desc").hidden = !$("#desc").textContent;
+      renderInfo(g, L);
       $("#goToday").href = "../today/index.html?ilju=" + encodeURIComponent(g) + (L === "en" ? "&lang=en" : "");
     }
 
