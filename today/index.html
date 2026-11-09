@@ -184,7 +184,7 @@
     <section class="picker" id="picker" hidden>
       <div class="picker-head">
         <h2 id="pickTitle"></h2>
-        <a class="find" id="findLink" target="_blank" rel="noopener"></a>
+        <a class="find" id="findLink"></a>
       </div>
       <input class="search" id="q" type="text" autocomplete="off">
       <div class="tabs" id="tabs"></div>
@@ -253,7 +253,7 @@
 <script>
 /* ===== 운영 설정 ===== */
 const CONFIG = {
-  FIND_URL: 'https://matspace.vercel.app/',
+  FIND_URL: '../ilju/',
   INSTAGRAM_URL: 'https://www.instagram.com/matspace.official/',
   PC_DOWNLOAD_URL: ''   // PC 설치파일 링크가 생기면 여기에 넣으면 버튼이 나타납니다
 };
@@ -262,7 +262,7 @@ const CONFIG = {
 const TXT = {
   ko: {
     title: '오늘 내 상태 확인하기 | 맛스페이스', home: '← 맛스페이스 홈', eyebrow: 'MAT SPACE · 60갑자 아바타',
-    h1: '오늘 내 상태 확인하기', heroP: '천간의 기운을 든 지지 동물, 나의 일주 아바타가<br>오늘 어떤 하루를 보내는지 보여드려요.',
+    h1: '오늘 내 컨디션', heroP: '나의 일주 아바타가<br>오늘 어떤 하루를 보내는지 보여드려요.',
     pickTitle: '나의 일주를 골라주세요', find: '내 일주를 모르면? 일주 찾기 →', search: '일주 검색 (예: 병인)', all: '전체',
     tab: (s) => I18N.UI.ko.stemTab(s).replace(' 일간', ''), group: (s) => I18N.UI.ko.stemGroup(s),
     empty: '찾는 일주가 없어요. 두 글자로 입력해 보세요 (예: 병인)', hint: '아바타를 눌러보세요',
@@ -297,7 +297,7 @@ const TXT = {
   },
   en: {
     title: 'Check My Vibe Today | Mat Space', home: '← Mat Space Home', eyebrow: 'MAT SPACE · 60 GAPJA AVATARS',
-    h1: 'Check My Vibe Today', heroP: 'Your Ilju avatar — a zodiac animal holding its heavenly-stem energy —<br>shows you what kind of day you\'re in for.',
+    h1: 'My Condition Today', heroP: 'Your Ilju avatar<br>shows you what kind of day you\'re in for.',
     pickTitle: 'Choose your Ilju (Day Pillar)', find: "Don't know your Ilju? Find it →", search: 'Search (e.g. ST, Sun Tiger, Tiger)', all: 'All',
     tab: (s) => I18N.UI.en.stemTab(s), group: (s) => I18N.UI.en.stemGroup(s),
     empty: 'No match. Try a type like ST or an animal like Tiger.', hint: 'Tap the avatar',
