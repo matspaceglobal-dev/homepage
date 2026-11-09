@@ -157,9 +157,12 @@
   $("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
 
   /* ---------- 아바타 고르기 ---------- */
+  const STEM_KO = { '갑':'갑목','을':'을목','병':'병화','정':'정화','무':'무토','기':'기토','경':'경금','신':'신금','임':'임수','계':'계수' };
+  const STEM_EN = { '갑':'Yang Wood','을':'Yin Wood','병':'Yang Fire','정':'Yin Fire','무':'Yang Earth','기':'Yin Earth','경':'Yang Metal','신':'Yin Metal','임':'Yang Water','계':'Yin Water' };
+  function stemLabel(s) { return (document.documentElement.lang === 'en' || /[?&]lang=en/.test(location.search)) ? STEM_EN[s] : STEM_KO[s]; }
   function buildPicker() {
     const cur = S.stemTab;
-    $("#tabs").innerHTML = window.SAJU.STEMS.map(s => `<button class="pb-tab${s === cur ? " on" : ""}" data-s="${s}">${s}</button>`).join("");
+    $("#tabs").innerHTML = window.SAJU.STEMS.map(s => `<button class="pb-tab${s === cur ? " on" : ""}" data-s="${s}">${stemLabel(s)}</button>`).join("");
     const items = Object.keys(AV).filter(g => g[0] === cur).sort((a, b) => window.SAJU.BRANCHES.indexOf(a[1]) - window.SAJU.BRANCHES.indexOf(b[1]));
     $("#grid").innerHTML = items.map(g => `<button class="pb-av${g === S.key ? " on" : ""}" data-g="${g}"><img src="img/${g}.webp" alt="${window.I18N.avatarName(g, lang())}" loading="lazy"><b>${window.I18N.avatarName(g, lang())}</b></button>`).join("");
   }

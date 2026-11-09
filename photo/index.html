@@ -25,9 +25,8 @@
   .pb-hrow .pb-h { margin: 0; }
   .pb-find { font-size: 14px; font-weight: 800; color: var(--ink); text-decoration: none; border-bottom: 3px solid var(--yellow); }
   .pb-n { width: 28px; height: 28px; border-radius: 50%; background: var(--ink); color: var(--yellow); font-size: 14px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
-  .pb-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 12px; scrollbar-width: none; }
-  .pb-tabs::-webkit-scrollbar { display: none; }
-  .pb-tab { flex: 0 0 auto; padding: 8px 15px; border-radius: 999px; border: 2px solid var(--gray-100); background: var(--paper); color: var(--gray-600); font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; transition: .2s; }
+  .pb-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 0 14px; }
+  .pb-tab { flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; border: 2px solid var(--gray-100); background: var(--paper); color: var(--gray-600); font-size: 14px; font-weight: 800; cursor: pointer; font-family: inherit; transition: .2s; }
   .pb-tab:hover { border-color: var(--ink); color: var(--ink); }
   .pb-tab.on { background: var(--ink); color: var(--paper); border-color: var(--ink); }
   .pb-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
