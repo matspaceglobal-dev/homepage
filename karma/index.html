@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>업보 청산 | 맛스페이스</title>
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../style.css">
+<style>
+/* ============ 업보 청산: 홈페이지 공통 색·폰트·버튼(style.css)을 그대로 사용 ============ */
+:root { --coral: #FF5A4E; --coral-d: #D93A30; --flame: #FF9A3D; --flame-l: #FFE45C; }
+html, body { min-height: 100%; background: var(--paper); }
+#app { max-width: 460px; margin: 0 auto; min-height: 100dvh; position: relative; }
+.screen { display: none; min-height: 100dvh; padding: 30px 22px 90px; flex-direction: column; align-items: center; }
+.screen.active { display: flex; animation: kfade .6s ease both; }
+@keyframes kfade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.k-eyebrow { font-size: 12.5px; font-weight: 800; letter-spacing: .22em; color: var(--gray-400); margin-top: 14px; }
+.k-h1 { font-size: 36px; font-weight: 800; letter-spacing: -.03em; line-height: 1.25; margin-top: 10px; text-align: center; }
+.k-sub { color: var(--gray-600); font-size: 16px; text-align: center; margin-top: 12px; line-height: 1.7; }
+
+.k-area { width: 100%; margin-top: 26px; position: relative; }
+textarea {
+  width: 100%; height: 210px; resize: none; display: block;
+  background: var(--gray-50); color: var(--ink); border: 2px solid var(--gray-100); border-radius: var(--radius-md);
+  padding: 20px; font: inherit; font-size: 16px; line-height: 1.7; outline: none; transition: border-color .2s, background .2s;
+}
+textarea:focus { border-color: var(--ink); background: var(--paper); }
+textarea::placeholder { color: var(--gray-400); }
+.k-count { text-align: right; color: var(--gray-400); font-size: 12.5px; font-weight: 700; margin: 8px 6px 0; }
+.k-privacy {
+  width: 100%; margin-top: 12px; padding: 14px 16px; border-radius: var(--radius-sm); background: var(--gray-50);
+  display: flex; gap: 12px; align-items: flex-start; font-size: 13.5px; line-height: 1.55; color: var(--gray-600);
+}
+.k-privacy .lock { flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--yellow); display: flex; align-items: center; justify-content: center; color: var(--ink); }
+.k-btn { width: 100%; margin-top: 18px; padding: 18px; font-size: 17px; }
+.k-btn:disabled { opacity: .3; cursor: not-allowed; transform: none; }
+.k-btn.line { padding: 14px; font-size: 15px; }
+
+/* ---------- 봉투 (노란 봉투 + 검정 테두리) ---------- */
+.env { position: relative; width: 280px; height: 184px; margin: 96px auto 0; perspective: 900px; }
+.env .back { position: absolute; inset: 0; background: #F2E600; border: 3px solid var(--ink); border-radius: 12px; box-shadow: 0 18px 0 -6px rgba(21,21,21,.08); z-index: 0; }
+.env .flap { position: absolute; left: 0; right: 0; top: 0; height: 54%; transform-origin: top; transform: rotateX(180deg); transition: transform .9s ease; z-index: 1; }
+.env .flap svg, .env .front svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.env.closing .flap { transform: rotateX(0deg); }
+.env.flapfront .flap { z-index: 4; }
+.env .paper { position: absolute; left: 20px; right: 20px; top: 0; height: 150px; background: var(--paper); border: 2.5px solid var(--ink); border-radius: 6px;
+  padding: 12px; color: var(--gray-600); font-size: 11px; line-height: 1.55; overflow: hidden; z-index: 2;
+  transform: translateY(-95px); transition: transform 1.1s cubic-bezier(.6,.05,.3,1); }
+.env.in .paper { transform: translateY(22px); }
+.env .front { position: absolute; inset: 0; z-index: 3; }
+.seal-mark {
+  width: 50px; height: 50px; background: radial-gradient(circle at 34% 30%, #7A808B 0, #4A505C 45%, #262A31 100%);
+  border-radius: 52% 48% 50% 50% / 50% 52% 48% 50%; display: flex; align-items: center; justify-content: center;
+  color: #F1F2F5; font-weight: 800; font-size: 14px; letter-spacing: .02em; text-shadow: 0 1px 0 rgba(0,0,0,.45);
+  box-shadow: 0 4px 0 rgba(20,22,28,.5), inset 0 0 0 4px rgba(255,255,255,.14), inset 0 -3px 5px rgba(0,0,0,.3);
+}
+.env .seal { position: absolute; left: 50%; top: calc(54% - 25px); margin-left: -25px; z-index: 6;
+  transform: scale(0); transition: transform .45s cubic-bezier(.3,1.6,.5,1); }
+.env.sealed .seal { transform: scale(1); }
+.k-status { margin-top: 46px; color: var(--gray-600); font-size: 16px; font-weight: 700; min-height: 28px; text-align: center; }
+.s2-actions { width: 100%; opacity: 0; pointer-events: none; transition: opacity .8s; }
+.s2-actions.show { opacity: 1; pointer-events: auto; }
+.k-hint { color: var(--gray-400); font-size: 13px; text-align: center; margin-top: 12px; }
+
+/* ---------- 태우기 ---------- */
+body.burning { --g: 0; background: radial-gradient(ellipse 60% 55% at 50% 66%, rgba(255,170,60,calc(var(--g)*.30)), transparent 100%), var(--paper); background-attachment: fixed; }
+.k-stage { width: min(88vw, 360px); aspect-ratio: 360/420; margin-top: 10px; }
+.k-stage canvas { width: 100%; height: 100%; display: block; }
+.k-burn-title { color: var(--gray-600); font-size: 16px; font-weight: 700; margin-top: 12px; }
+.k-burn-time { margin-top: 8px; font-size: 34px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.k-burn-time mark { padding: 0 .35em; }
+.k-row { display: flex; gap: 10px; margin-top: 20px; align-items: center; }
+
+/* ---------- 결과 ---------- */
+.k-dot { width: 64px; height: 64px; margin-top: 34px; font-size: 17px; }
+.k-res-title { font-size: 27px; font-weight: 800; letter-spacing: -.03em; margin-top: 24px; text-align: center; }
+.k-res-msg { color: var(--gray-600); font-size: 16px; text-align: center; margin-top: 14px; line-height: 1.75; }
+.k-notice { width: 100%; margin-top: 18px; padding: 15px 17px; border-radius: var(--radius-sm); background: #FFFBCC; font-size: 14px; line-height: 1.6; }
+.k-quote { width: 100%; margin-top: 26px; padding: 26px 22px; border-radius: var(--radius-md); background: var(--gray-50); text-align: center; }
+.q-orig { font-family: "NanumSquareRound", "Noto Serif KR", "Batang", serif; font-weight: 700; font-size: 17px; line-height: 1.75; word-break: keep-all; white-space: pre-line; }
+.q-ko { margin-top: 14px; font-size: 16px; line-height: 1.7; color: var(--gray-600); }
+.q-src { margin-top: 12px; color: var(--gray-400); font-size: 13px; font-weight: 700; }
+.k-cta { width: 100%; margin-top: 30px; padding: 30px 22px 24px; border-radius: var(--radius-lg); background: var(--ink); color: var(--paper); text-align: center; }
+.k-cta-h { font-size: 20px; font-weight: 800; letter-spacing: -.02em; line-height: 1.45; }
+.k-cta-p { color: rgba(255,255,255,.65); font-size: 14px; margin-top: 8px; }
+.k-cta .btn { margin-top: 20px; width: 100%; padding: 17px; }
+.k-small-note { margin-top: 18px; color: var(--gray-400); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 1. 작성 -->
+  <section id="s1" class="screen active">
+    <div class="k-eyebrow">LET IT GO ✦</div>
+    <h1 class="k-h1"><mark>업보 청산</mark></h1>
+    <p class="k-sub">말하지 못하고 가슴에 쌓아둔 일,<br>여기에 꺼내 놓고 태워 보내요.</p>
+    <div class="k-area">
+      <textarea id="txt" maxlength="1000" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        placeholder="누구에게도 말하지 못한 이야기를 적어 보세요.&#10;이름은 쓰지 않아도 괜찮아요."></textarea>
+      <div class="k-count"><span id="cnt">0</span> / 1000</div>
+    </div>
+    <div class="k-privacy">
+      <span class="lock"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+      <span>이 글은 서버로 전송되지 않고 어디에도 저장되지 않아요. 태우고 나면 완전히 사라져요.</span>
+    </div>
+    <button class="btn btn-dark k-btn" id="toEnv" disabled>봉투에 담기</button>
+  </section>
+
+  <!-- 2. 봉투 -->
+  <section id="s2" class="screen">
+    <div class="env" id="env">
+      <div class="back"></div>
+      <div class="flap"><svg viewBox="0 0 280 100" preserveAspectRatio="none"><polygon points="1.5,1.5 278.5,1.5 140,99" fill="#FFF45A" stroke="#151515" stroke-width="3" stroke-linejoin="round"/></svg></div>
+      <div class="paper"><div id="paperTxt"></div></div>
+      <div class="front"><svg viewBox="0 0 280 184">
+        <polygon points="1.5,1.5 140,99 278.5,1.5 278.5,182.5 1.5,182.5" fill="#FFFF00" stroke="#151515" stroke-width="3" stroke-linejoin="round"/>
+        <text x="140" y="150" text-anchor="middle" font-family="NanumSquareRound, sans-serif" font-weight="800" font-size="22" fill="#151515" letter-spacing="-.5">업보 청산</text>
+        <text x="44" y="150" text-anchor="middle" font-size="14" fill="#151515">✦</text><text x="236" y="150" text-anchor="middle" font-size="14" fill="#151515">✦</text>
+      </svg></div>
+      <div class="seal seal-mark">봉인</div>
+    </div>
+    <div class="k-status" id="envStatus">봉투에 담는 중…</div>
+    <div class="s2-actions" id="s2act">
+      <button class="btn btn-dark k-btn" id="burnBtn">업보 청산</button>
+      <div class="k-hint">타닥타닥 불 소리가 나요. 볼륨을 확인해 주세요.</div>
+    </div>
+  </section>
+
+  <!-- 3. 태우기 -->
+  <section id="s3" class="screen">
+    <div class="k-burn-title">천천히 태우는 중이에요</div>
+    <div class="k-burn-time"><mark><span id="burnTime">30</span>초</mark></div>
+    <div class="k-stage"><canvas id="fire" width="720" height="840"></canvas></div>
+    <div class="k-row">
+      <button class="btn btn-line btn-sm" id="sndBtn">소리 켜짐</button>
+      <button class="btn btn-line btn-sm" id="skipBtn">즉시 완료하기</button>
+    </div>
+  </section>
+
+  <!-- 4. 결과 -->
+  <section id="s4" class="screen">
+    <div class="seal-mark k-dot">완료</div>
+    <h2 class="k-res-title"><mark>마음에서 내려놓았어요</mark></h2>
+    <p class="k-res-msg">꺼내 놓은 마음은 연기처럼 흩어졌어요.<br>있었던 일이 없던 일이 되는 건 아니지만,<br>이제 그 마음을 혼자 쥐고 있지 않아도 괜찮아요.</p>
+    <div class="k-notice" id="crisis" hidden>혼자 감당하기 어려운 마음이 느껴진다면, 전문 상담의 도움을 받아 보세요. 지금 이 순간에도 도움을 줄 수 있는 사람들이 있어요. (상담 연락처 자리 · 출시 전 최신 번호 확인 필요)</div>
+    <div class="k-quote">
+      <div class="q-orig" id="qOrig"></div>
+      <div class="q-ko" id="qKo"></div>
+      <div class="q-src" id="qSrc"></div>
+    </div>
+    <button class="btn btn-line btn-block k-btn line" id="nextQ" style="margin-top:12px">다른 글귀 보기</button>
+    <div class="k-cta">
+      <div class="k-cta-h">내려놓은 마음 다음엔,<br>나를 기록해 보세요</div>
+      <div class="k-cta-p">사주일기 · 기록할수록 정확해지는 운세</div>
+      <a class="btn btn-yellow" id="ctaLink" href="https://apps.apple.com/kr/app/id6800301249" target="_blank" rel="noopener">사주일기 만나보기</a>
+    </div>
+    <button class="btn btn-line btn-block k-btn line" id="again" style="margin-top:14px">처음으로 돌아가기</button>
+    <!-- 글귀 한글 해석·안내 문구는 AI 초안입니다. 공개 전 검수가 필요해요. -->
+  </section>
+</div>
+
+<script src="../config.js"></script>
+<script>
+(function(){
+'use strict';
+const $ = id => document.getElementById(id);
+const D = 30 * 1000;                      // 태우는 시간 30초
+const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+try { const u = window.MATSPACE_CONFIG && window.MATSPACE_CONFIG.appStoreUrl; if (u) $('ctaLink').href = u; } catch(e){}
+
+/* ===== 글귀 (AI 초안 · 검수 필요 / 미리보기용 9개 · 정식은 20~30개) ===== */
+const QUOTES = [
+  {o:'Na hi verena verāni sammantīdha kudācanaṃ,\naverena ca sammanti, esa dhammo sanantano.', k:'미움은 미움으로 가라앉지 않는다. 미움을 내려놓을 때 비로소 가라앉는다. 이것은 오래된 이치이다.', s:'법구경 5'},
+  {o:'Attā hi attano nātho.', k:'자기 자신이 곧 자기의 의지처이다.', s:'법구경 160'},
+  {o:'Sabbapāpassa akaraṇaṃ, kusalassa upasampadā,\nsacittapariyodapanaṃ, etaṃ buddhāna sāsanaṃ.', k:'악한 일은 하지 말고, 선한 일을 받들어 행하고, 스스로 마음을 맑게 하라. 이것이 모든 붓다의 가르침이다.', s:'법구경 183'},
+  {o:'Yo sahassaṃ sahassena saṅgāme mānuse jine,\nekañca jeyyamattānaṃ sa ve saṅgāmajuttamo.', k:'전쟁터에서 천 명을 천 번 이기는 것보다, 자기 자신 하나를 이기는 사람이 진정한 으뜸 승리자이다.', s:'법구경 103'},
+  {o:'Manasā ce pasannena bhāsati vā karoti vā,\ntato naṃ sukhamanveti chāyāva anapāyinī.', k:'맑은 마음으로 말하고 행하면, 그림자가 몸을 따르듯 즐거움이 따라온다.', s:'법구경 2'},
+  {o:'過去心不可得\n現在心不可得\n未來心不可得', k:'지나간 마음도, 지금의 마음도, 다가올 마음도 붙잡을 수 없다.', s:'금강경'},
+  {o:'應無所住 而生其心', k:'어디에도 머물지 않는 마음을 내라.', s:'금강경'},
+  {o:'心如工畫師 能畫諸世間', k:'마음은 솜씨 좋은 화가 같아서, 세상의 모든 것을 그려낸다.', s:'화엄경'},
+  {o:'應觀法界性 一切唯心造', k:'법계의 본성을 알고 싶다면, 모든 것이 오직 마음이 지은 것임을 보라.', s:'화엄경'}
+];
+let lastQ = -1;
+function showQuote(){
+  let i; do{ i = Math.floor(Math.random()*QUOTES.length); }while(QUOTES.length>1 && i===lastQ);
+  lastQ = i; const q = QUOTES[i];
+  $('qOrig').textContent = q.o; $('qKo').textContent = q.k; $('qSrc').textContent = '— ' + q.s;
+}
+
+/* ===== 화면 전환 ===== */
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active', s.id===id)); document.body.classList.toggle('burning', id==='s3'); window.scrollTo(0,0); }
+
+/* ===== 1. 작성 ===== */
+const txt = $('txt');
+let crisis = false;
+txt.addEventListener('input', ()=>{ $('cnt').textContent = txt.value.length; $('toEnv').disabled = txt.value.trim().length < 1; });
+const CRISIS_WORDS = ['자살','죽고 싶','죽고싶','죽을','자해','목숨','사라지고 싶','사라지고싶','끝내고 싶','끝내고싶'];
+$('toEnv').addEventListener('click', ()=>{
+  const v = txt.value;
+  crisis = CRISIS_WORDS.some(w => v.indexOf(w) !== -1);   // 브라우저 안에서만 검사, 어디에도 보내거나 저장하지 않음
+  $('paperTxt').textContent = v.slice(0, 220);
+  show('s2'); runEnvelope();
+});
+
+/* ===== 2. 봉투 ===== */
+const env = $('env'); let envTimers = [];
+function runEnvelope(){
+  envTimers.forEach(clearTimeout); envTimers = [];
+  env.className = 'env'; $('s2act').classList.remove('show'); $('envStatus').textContent = '봉투에 담는 중…';
+  const at = (ms,fn)=>envTimers.push(setTimeout(fn,ms));
+  at(300, ()=>{ if(!envBase){ Promise.race([document.fonts.load('800 44px NanumSquareRound'), new Promise(r=>setTimeout(r,600))]).catch(()=>{}).then(()=>{ if(!envBase) buildEnvelope(); }); } });
+  at(500,  ()=>env.classList.add('in'));
+  at(1800, ()=>env.classList.add('closing'));
+  at(2200, ()=>env.classList.add('flapfront'));
+  at(2900, ()=>env.classList.add('sealed'));
+  at(3500, ()=>{ $('envStatus').textContent = '봉투에 담겼어요'; $('s2act').classList.add('show'); });
+}
+
+/* ===== 3. 태우기 ===== */
+const EW = 560, EH = 368, EX = 80, EY = 400, N = EW*EH;
+const cv = $('fire'), ctx = cv.getContext('2d');
+const off = document.createElement('canvas'); off.width = EW; off.height = EH; const octx = off.getContext('2d');
+let tMin = 0, tMax = 1, envBase = null, cur = null, tField = null, flameSp = null, starSp = null;
+
+function rr(x, c, X, Y, W, H, R){ x.beginPath(); x.moveTo(X+R,Y); x.arcTo(X+W,Y,X+W,Y+H,R); x.arcTo(X+W,Y+H,X,Y+H,R); x.arcTo(X,Y+H,X,Y,R); x.arcTo(X,Y,X+W,Y,R); x.closePath(); }
+function buildEnvelope(){
+  const c = document.createElement('canvas'); c.width = EW; c.height = EH; const x = c.getContext('2d');
+  // 봉투 몸통 (노랑) + 검정 테두리
+  x.lineJoin = 'round'; x.lineWidth = 6; x.strokeStyle = '#151515';
+  x.fillStyle = '#FFFF00'; rr(x,0,3,3,EW-6,EH-6,22); x.fill();
+  x.beginPath(); x.moveTo(3,3); x.lineTo(EW/2,199); x.lineTo(EW-3,3); x.lineTo(EW-3,EH-3); x.lineTo(3,EH-3); x.closePath();
+  x.fillStyle = '#FFFF00'; x.fill();
+  x.fillStyle = '#FFF45A'; x.beginPath(); x.moveTo(3,3); x.lineTo(EW-3,3); x.lineTo(EW/2,199); x.closePath(); x.fill();
+  x.beginPath(); x.moveTo(3,3); x.lineTo(EW/2,199); x.lineTo(EW-3,3); x.stroke();
+  rr(x,0,3,3,EW-6,EH-6,22); x.stroke();
+  // 앞면 글자
+  x.fillStyle = '#151515'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.font = '800 44px NanumSquareRound, sans-serif'; x.fillText('업보 청산', EW/2, 300);
+  x.font = '800 26px NanumSquareRound, sans-serif'; x.fillText('✦', 88, 300); x.fillText('✦', EW-88, 300);
+  // 밀랍 봉인
+  const g = x.createRadialGradient(EW/2-12,187,2,EW/2,199,44);
+  g.addColorStop(0,'#7A808B'); g.addColorStop(.45,'#4A505C'); g.addColorStop(1,'#262A31');
+  x.fillStyle = g; x.beginPath(); x.ellipse(EW/2,199,44,43,0,0,Math.PI*2); x.fill();
+  x.strokeStyle = 'rgba(255,255,255,.2)'; x.lineWidth = 5; x.beginPath(); x.ellipse(EW/2,199,35,34,0,0,Math.PI*2); x.stroke();
+  x.fillStyle = '#F1F2F5'; x.font = '800 24px NanumSquareRound, sans-serif'; x.fillText('봉인', EW/2, 201);
+  envBase = x.getImageData(0,0,EW,EH);
+  cur = new ImageData(new Uint8ClampedArray(envBase.data), EW, EH);
+
+  // 타는 순서 지도: 아래에서 위로, 불규칙하게
+  const mk = () => { const a = new Float32Array(1600); for(let i=0;i<1600;i++) a[i] = Math.random(); return a; };
+  const g1 = mk(), g2 = mk(), g3 = mk();
+  const vn = (g,gx,gy) => {
+    const x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx-x0, fy = gy-y0;
+    const sx = fx*fx*(3-2*fx), sy = fy*fy*(3-2*fy);
+    const at = (xx,yy)=>g[((yy%40)+40)%40*40 + ((xx%40)+40)%40];
+    const a = at(x0,y0)*(1-sx)+at(x0+1,y0)*sx, b = at(x0,y0+1)*(1-sx)+at(x0+1,y0+1)*sx;
+    return a*(1-sy)+b*sy;
+  };
+  tField = new Float32Array(N);
+  for(let y=0;y<EH;y++){ for(let xx=0;xx<EW;xx++){
+    const u = xx/EW, v = y/EH;
+    const n = 0.6*vn(g1,u*5,v*4) + 0.3*vn(g2,u*11,v*9) + 0.1*vn(g3,u*25,v*20);
+    tField[y*EW+xx] = (1-v)*0.72 + n*0.28;
+  }}
+  tMin = 9; tMax = -9;
+  for(let i=0;i<N;i++){ if(envBase.data[i*4+3]===0) continue; const t = tField[i]; if(t<tMin) tMin=t; if(t>tMax) tMax=t; }
+  // 귀여운 불꽃(둥근 물방울 모양) · 반짝이(4각 별) 스프라이트
+  flameSp = document.createElement('canvas'); flameSp.width = 64; flameSp.height = 80; const f = flameSp.getContext('2d');
+  const tear = (cx,by,w,h,fill)=>{ f.fillStyle = fill; f.beginPath(); f.moveTo(cx,by-h); f.bezierCurveTo(cx+w*.2,by-h*.62,cx+w,by-h*.45,cx+w,by-h*.2); f.bezierCurveTo(cx+w,by+h*.05,cx+w*.55,by,cx,by); f.bezierCurveTo(cx-w*.55,by,cx-w,by+h*.05,cx-w,by-h*.2); f.bezierCurveTo(cx-w,by-h*.45,cx-w*.2,by-h*.62,cx,by-h); f.fill(); };
+  tear(32,76,28,70,'#FF9A3D'); tear(32,72,17,42,'#FFE45C');
+  starSp = document.createElement('canvas'); starSp.width = starSp.height = 40; const s = starSp.getContext('2d');
+  s.fillStyle = '#FFD21F'; s.beginPath(); s.moveTo(20,2); s.quadraticCurveTo(20,20,38,20); s.quadraticCurveTo(20,20,20,38); s.quadraticCurveTo(20,20,2,20); s.quadraticCurveTo(20,20,20,2); s.fill();
+}
+
+const CHAR = 0.05, GLOW = 0.07;
+function paintEnvelope(p){
+  const src = envBase.data, dst = cur.data;
+  for(let i=0;i<N;i++){
+    const j = i*4, a = src[j+3];
+    if(a === 0){ dst[j+3] = 0; continue; }
+    const d = p - tField[i];
+    if(d > CHAR){ dst[j+3] = 0; continue; }
+    let r = src[j], g = src[j+1], b = src[j+2], al = a;
+    if(d > 0){                       // 타서 사라지는 중: 검게 그을리지 않고 따뜻한 주황빛으로 흐려져요
+      const k = d/CHAR;
+      r = 255; g = 150 + 70*k; b = 70 + 90*k;
+      al = a*Math.pow(1-k, 1.4);
+    } else if(d > -GLOW){            // 불길이 다가오는 가장자리: 따뜻한 주황빛이 번져요
+      const h = 1 + d/GLOW;
+      r = r + (255-r)*h*.25; g = g*(1-.28*h*h); b = b*(1-.6*h);
+    }
+    dst[j] = r; dst[j+1] = g; dst[j+2] = b; dst[j+3] = al;
+  }
+  octx.putImageData(cur,0,0);
+}
+
+/* 파티클: f=불꽃 / e=반짝이 / a=연기·재 */
+let parts = [];
+function spawnAtFront(p, attempts){
+  const src = envBase.data;
+  for(let k=0;k<attempts;k++){
+    const i = (Math.random()*N)|0;
+    if(src[i*4+3] === 0) continue;
+    const d = p - tField[i];
+    if(d > 0 && d < 0.035){
+      const x = EX + (i % EW), y = EY + ((i/EW)|0);
+      if(Math.random() < .38) parts.push({t:'f', x, y, vx:(Math.random()-.5)*16, vy:-(40+Math.random()*70), life:0, max:.5+Math.random()*.6, s:15+Math.random()*24, seed:Math.random()*10});
+      if(Math.random() < .12) parts.push({t:'e', x, y, vx:(Math.random()-.5)*70, vy:-(70+Math.random()*150), life:0, max:1+Math.random()*1.2, s:10+Math.random()*12, seed:Math.random()*6});
+      if(Math.random() < .07) parts.push({t:'a', x, y, vx:(Math.random()-.5)*26, vy:-(20+Math.random()*40), life:0, max:2+Math.random()*1.6, s:10+Math.random()*10, seed:Math.random()*10});
+    }
+  }
+}
+function drawParts(dt, time){
+  const next = [];
+  for(const q of parts){
+    q.life += dt; if(q.life >= q.max) continue;
+    const u = q.life/q.max;
+    q.x += (q.vx + (q.t==='f' ? Math.sin(time*7+q.seed)*14 : 0)) * dt; q.y += q.vy*dt;
+    if(q.t === 'f'){
+      ctx.globalAlpha = Math.min(1, (1-u)*1.4);
+      const w = q.s*(1 - u*.55), h = w*1.25;
+      ctx.drawImage(flameSp, q.x - w, q.y - h*1.6, w*2, h*2);
+    } else if(q.t === 'e'){
+      ctx.globalAlpha = 1-u; ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.seed + u*2);
+      const s = q.s*(.6 + .6*Math.sin(Math.PI*Math.min(1,u*1.3))); ctx.drawImage(starSp, -s/2, -s/2, s, s); ctx.restore();
+    } else {
+      ctx.globalAlpha = (1-u)*.55; ctx.fillStyle = '#E4E4DF';
+      ctx.beginPath(); ctx.arc(q.x, q.y, q.s*(.6 + u*.9), 0, Math.PI*2); ctx.fill();
+    }
+    next.push(q);
+  }
+  ctx.globalAlpha = 1;
+  parts = next;
+}
+
+/* ===== 소리 (임시 합성음 · 정식 버전은 라이선스 확인된 음원으로 교체 필요) ===== */
+let A = null, muted = false;
+function startAudio(){
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext; if(!AC) return;
+    const c = new AC(); if(c.state === 'suspended') c.resume();
+    const master = c.createGain(); master.gain.value = 0; master.connect(c.destination);
+    const mute = c.createGain(); mute.gain.value = 1; mute.connect(master);
+    master.gain.linearRampToValueAtTime(.9, c.currentTime + 2);
+    const bl = c.sampleRate*3, bb = c.createBuffer(1, bl, c.sampleRate), bd = bb.getChannelData(0); let last = 0;
+    for(let i=0;i<bl;i++){ const w = Math.random()*2-1; last = (last + .02*w)/1.02; bd[i] = last*3.5; }
+    const bs = c.createBufferSource(); bs.buffer = bb; bs.loop = true;
+    const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500;
+    const bg = c.createGain(); bg.gain.value = .5; bs.connect(lp); lp.connect(bg); bg.connect(mute); bs.start();
+    const wl = c.sampleRate, wb = c.createBuffer(1, wl, c.sampleRate), wd = wb.getChannelData(0);
+    for(let i=0;i<wl;i++) wd[i] = Math.random()*2-1;
+    const hs = c.createBufferSource(); hs.buffer = wb; hs.loop = true;
+    const hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2500;
+    const hg = c.createGain(); hg.gain.value = .035; hs.connect(hp); hp.connect(hg); hg.connect(mute); hs.start();
+    function pop(str, big){
+      const s = c.createBufferSource(); s.buffer = wb;
+      const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = big ? 250+Math.random()*350 : 800+Math.random()*4500; f.Q.value = .8+Math.random()*2;
+      const g = c.createGain(), t = c.currentTime, dur = big ? .05+Math.random()*.05 : .008+Math.random()*.04;
+      g.gain.setValueAtTime(str, t); g.gain.exponentialRampToValueAtTime(.001, t+dur);
+      s.connect(f); f.connect(g); g.connect(mute); s.start(t, Math.random()*.8, dur+.02);
+    }
+    A = {c, master, mute, pop, timer:null, intensity:0};
+    A.timer = setInterval(()=>{
+      const f = A.intensity;
+      if(Math.random() < .35 + f*.5){ pop(.15 + Math.random()*.5*(.4+f), false); if(Math.random() < .25) pop(.12 + Math.random()*.3, false); }
+      if(Math.random() < .02 + f*.02) pop(.9, true);
+    }, 45);
+  }catch(e){ A = null; }
+}
+function stopAudio(fade){
+  if(!A) return; const a = A; A = null;
+  clearInterval(a.timer);
+  try{ a.master.gain.cancelScheduledValues(a.c.currentTime); a.master.gain.setValueAtTime(a.master.gain.value, a.c.currentTime);
+       a.master.gain.linearRampToValueAtTime(0, a.c.currentTime + fade); }catch(e){}
+  setTimeout(()=>{ try{ a.c.close(); }catch(e){} }, fade*1000 + 200);
+}
+
+/* 태우기 진행 */
+let raf = 0, t0 = 0, tPrev = 0, running = false, skipping = false, skipT0 = 0, skipQ0 = 0, curQ = 0;
+const SKIP_MS = 1700, SKIP_TAIL = 800;
+async function startBurn(){
+  if(!envBase){ try { await Promise.race([document.fonts.load('800 44px NanumSquareRound'), new Promise(r=>setTimeout(r,500))]); } catch(e){} buildEnvelope(); }
+  skipping = false;
+  parts = []; muted = false; $('sndBtn').textContent = '소리 켜짐';
+  show('s3'); startAudio();
+  running = true; t0 = tPrev = performance.now();
+  raf = requestAnimationFrame(loop);
+}
+function loop(now){
+  if(!running) return;
+  const elapsed = now - t0, dt = Math.min(.05, (now - tPrev)/1000); tPrev = now;
+  let q;
+  if(skipping){ const u = clamp((now-skipT0)/SKIP_MS, 0, 1); q = skipQ0 + (1-skipQ0)*(u*u*(3-2*u)); }
+  else q = clamp(elapsed/D, 0, 1);
+  curQ = q;
+  const p0 = tMin + 0.01, p = p0 + q*(tMax + CHAR + 0.02 - p0);
+  let f = Math.pow(Math.sin(Math.PI*q), .7);
+  f = Math.max(f, clamp(1-q*8,0,1)*.45, skipping ? .9 : 0);
+  if(A) A.intensity = f;
+  document.body.style.setProperty('--g', f.toFixed(3));
+  $('burnTime').textContent = skipping ? 0 : Math.max(0, Math.ceil((D-elapsed)/1000));
+  paintEnvelope(p);
+  ctx.clearRect(0,0,cv.width,cv.height);
+  ctx.drawImage(off, EX, EY);
+  if(q < 1) spawnAtFront(p, Math.round((skipping ? 200 : 70) * (dt*60)));
+  drawParts(dt, now/1000);
+  if(skipping ? (now - skipT0 >= SKIP_MS + SKIP_TAIL) : elapsed >= D){ finishBurn(skipping); return; }
+  raf = requestAnimationFrame(loop);
+}
+function finishBurn(skipped){
+  running = false; cancelAnimationFrame(raf);
+  if(!skipped) stopAudio(1.5);
+  txt.value = ''; $('paperTxt').textContent = '';   // 입력 내용 즉시 폐기
+  showQuote(); $('crisis').hidden = !crisis;
+  setTimeout(()=>show('s4'), skipped ? 150 : 900);
+}
+$('burnBtn').addEventListener('click', startBurn);
+$('skipBtn').addEventListener('click', ()=>{ if(!running || skipping) return; skipping = true; skipT0 = performance.now(); skipQ0 = curQ; stopAudio(1.8); });
+$('sndBtn').addEventListener('click', ()=>{
+  muted = !muted; $('sndBtn').textContent = muted ? '소리 꺼짐' : '소리 켜짐';
+  if(A) A.mute.gain.setTargetAtTime(muted ? 0 : 1, A.c.currentTime, .05);
+});
+
+/* ===== 4. 결과 ===== */
+$('nextQ').addEventListener('click', showQuote);
+$('again').addEventListener('click', ()=>{
+  txt.value = ''; $('cnt').textContent = '0'; $('toEnv').disabled = true; crisis = false;
+  env.className = 'env'; show('s1');
+});
+})();
+</script>
+</body>
+</html>
