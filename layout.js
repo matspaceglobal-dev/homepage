@@ -1,6 +1,6 @@
 /* =========================================================
    공통 헤더 · 메뉴 · 푸터 · 언어 전환(KO/EN) · 수정하지 않아도 돼요
-   메뉴 항목은 config.js 의 services 에서 바꿔요.
+   서비스 메뉴는 config.js 의 services 에서 바꿔요. (한 줄 추가하면 상단 메뉴에 바로 나타나요)
    영어 문구는 각 페이지 HTML 의 data-en="..." 안에 있어요.
    ========================================================= */
 (function () {
@@ -28,35 +28,23 @@
     <div class="container header-inner">
       <a data-link="" class="logo" aria-label="Mat Space">${logo}</a>
       <nav class="nav" aria-label="Menu">
+        ${services.map(sv => t(sv.name, sv.nameEn || sv.name, "a", `data-link="${sv.path}" data-nav="service"`)).join("")}
         ${t("회사소개", "About", "a", 'data-link="#about" data-nav="home"')}
-        <div class="nav-drop">
-          <button class="nav-drop-btn" aria-haspopup="true" data-nav="service">${t("서비스", "Services")} <span class="arrow" aria-hidden="true">▾</span></button>
-          <div class="nav-drop-menu">
-            ${services.map(s => t(s.name, s.nameEn || s.name, "a", `data-link="${s.path}"`)).join("")}
-          </div>
-        </div>
-        ${t("오늘 내 컨디션", "My Condition Today", "a", 'data-link="today/index.html" data-nav="today"')}
-        ${t("아바타 포토", "Avatar Photo", "a", 'data-link="photo/" data-nav="photo"')}
         ${t("공고", "Notice", "a", 'data-link="notice/" data-nav="notice"')}
         ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
       </nav>
       <div class="header-right">
         ${langBtn}
-        ${t("사주일기 시작하기", "Start Saju Diary", "a", 'class="btn btn-yellow btn-sm app-link header-cta" target="_blank" rel="noopener"')}
         <button class="menu-btn" id="menuBtn" aria-label="Menu" aria-expanded="false"><span></span><span></span></button>
       </div>
     </div>
   </header>
   <div class="mobile-menu" id="mobileMenu" hidden>
     <nav class="container">
+      ${services.map(sv => t(sv.name, sv.nameEn || sv.name, "a", `data-link="${sv.path}"`)).join("")}
       ${t("회사소개", "About", "a", 'data-link="#about"')}
-      ${t("서비스", "Services", "p", 'class="mm-group"')}
-      ${services.map(s => t("└ " + s.name, "└ " + (s.nameEn || s.name), "a", `class="mm-sub" data-link="${s.path}"`)).join("")}
-      ${t("오늘 내 컨디션", "My Condition Today", "a", 'data-link="today/index.html"')}
-      ${t("아바타 포토", "Avatar Photo", "a", 'data-link="photo/"')}
       ${t("공고", "Notice", "a", 'data-link="notice/"')}
       ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
-      ${t("사주일기 시작하기", "Start Saju Diary", "a", 'class="btn btn-yellow btn-block app-link" target="_blank" rel="noopener"')}
     </nav>
   </div>`;
 
@@ -72,8 +60,12 @@
         <div>
           ${t("서비스", "Services", "p", 'class="footer-key"')}
           ${services.map(s => t(s.name, s.nameEn || s.name, "a", `data-link="${s.path}"`)).join("")}
+        </div>
+        <div>
+          ${t("놀이터", "Playground", "p", 'class="footer-key"')}
           ${t("오늘 내 컨디션", "My Condition Today", "a", 'data-link="today/index.html"')}
           ${t("아바타 포토", "Avatar Photo", "a", 'data-link="photo/"')}
+          ${t("업보 청산", "Let It Go", "a", 'data-link="karma/"')}
         </div>
         <div>
           ${t("회사", "Company", "p", 'class="footer-key"')}
@@ -153,9 +145,6 @@
   menuBtn.addEventListener("click", () => setMenu(menu.hidden));
   menu.addEventListener("click", e => { if (e.target.closest("a")) setMenu(false); });
 
-  const drop = $(".nav-drop");
-  $(".nav-drop-btn").addEventListener("click", e => { e.stopPropagation(); drop.classList.toggle("open"); });
-  document.addEventListener("click", () => drop.classList.remove("open"));
 
   /* ---------- 스크롤 등장 효과 ---------- */
   const io = "IntersectionObserver" in window

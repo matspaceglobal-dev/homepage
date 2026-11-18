@@ -265,7 +265,24 @@ h2 { font-size: clamp(30px, 4.2vw, 48px); line-height: 1.3; font-weight: 800; le
 .disc-body a.disc-file { display: inline-block; margin-top: 14px; font-weight: 800; color: var(--ink); border-bottom: 2px solid var(--yellow); }
 .disc-actions { display: flex; gap: 8px; margin-top: 18px; white-space: normal; }
 
+
+/* ---------- 맛스 놀이터 (홈 배너) ---------- */
+.play-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+.play-card { position: relative; display: flex; flex-direction: column; min-height: 270px; padding: 28px 24px 24px; border-radius: var(--radius-md); overflow: hidden; transition: transform .25s ease, box-shadow .25s ease; }
+.play-card:hover { transform: translateY(-6px); box-shadow: var(--shadow); }
+.play-yellow { background: var(--yellow); color: var(--ink); }
+.play-pink { background: #FFD7E5; color: var(--ink); }
+.play-black { background: var(--ink); color: var(--paper); }
+.play-tag { position: absolute; right: 18px; top: 18px; font-size: 11px; font-weight: 800; letter-spacing: .06em; padding: 4px 11px; border-radius: 999px; background: var(--ink); color: var(--yellow); }
+.play-black .play-tag { background: var(--yellow); color: var(--ink); }
+.play-ic { display: block; line-height: 0; }
+.play-card h3 { font-size: 24px; font-weight: 800; letter-spacing: -.03em; margin-top: auto; padding-top: 28px; }
+.play-card p { font-size: 15px; margin-top: 6px; opacity: .75; min-height: 3.3em; }
+@media (max-width: 900px) { .play-card p { min-height: 0; } }
+.play-go { margin-top: 18px; font-size: 14px; font-weight: 800; }
+@media (max-width: 900px) { .play-grid { grid-template-columns: 1fr; } .play-card { min-height: 210px; } }
 /* ---------- 마지막 CTA ---------- */
+#playground + .cta-band { margin-top: 0; }
 .cta-band { background: var(--yellow); margin: 120px 12px 12px; border-radius: var(--radius-lg); padding: 80px 0; }
 .cta-inner { display: flex; align-items: center; justify-content: space-between; gap: 30px; flex-wrap: wrap; }
 .cta-band h2 { margin: 0; }
