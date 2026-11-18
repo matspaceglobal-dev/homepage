@@ -13,6 +13,13 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const services = CFG.services || [];
+  // 놀이터(가볍게 즐기는 기능) 목록 — 새 기능이 생기면 여기에 한 줄 추가해요
+  const play = [
+    { ko: "오늘 내 컨디션", en: "My Condition Today", dKo: "오늘의 기운을 1분 만에 확인해요", dEn: "Check today's energy in a minute", path: "today/index.html" },
+    { ko: "아바타 포토", en: "Avatar Photo", dKo: "내 일주 아바타에 내 사진을 넣어요", dEn: "Put your photo into your avatar", path: "photo/" },
+    { ko: "업보 청산", en: "Let It Go", dKo: "마음속 이야기를 태워 내려놓아요", dEn: "Burn what's on your mind and let it go", path: "karma/" }
+  ];
+  const PLAY_PAGES = ["today", "photo", "karma"];
   const esc = s => String(s).replace(/"/g, "&quot;");
   // 한국어/영어 두 가지를 가진 텍스트 조각
   const t = (ko, en, tag = "span", attrs = "") => `<${tag} ${attrs} data-en="${esc(en)}">${ko}</${tag}>`;
@@ -29,6 +36,12 @@
       <a data-link="" class="logo" aria-label="Mat Space">${logo}</a>
       <nav class="nav" aria-label="Menu">
         ${services.map(sv => t(sv.name, sv.nameEn || sv.name, "a", `data-link="${sv.path}" data-nav="service"`)).join("")}
+        <div class="nav-drop">
+          <button class="nav-drop-btn" aria-haspopup="true" data-nav="play">${t("놀이터", "Playground")} <span class="arrow" aria-hidden="true">▾</span></button>
+          <div class="nav-drop-menu wide">
+            ${play.map(p => t(`<b>${p.ko}</b><small>${p.dKo}</small>`, `<b>${p.en}</b><small>${p.dEn}</small>`, "a", `data-link="${p.path}"`)).join("")}
+          </div>
+        </div>
         ${t("회사소개", "About", "a", 'data-link="#about" data-nav="home"')}
         ${t("공고", "Notice", "a", 'data-link="notice/" data-nav="notice"')}
         ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
@@ -42,6 +55,8 @@
   <div class="mobile-menu" id="mobileMenu" hidden>
     <nav class="container">
       ${services.map(sv => t(sv.name, sv.nameEn || sv.name, "a", `data-link="${sv.path}"`)).join("")}
+      ${t("놀이터", "Playground", "p", 'class="mm-group"')}
+      ${play.map(p => t("└ " + p.ko, "└ " + p.en, "a", `class="mm-sub" data-link="${p.path}"`)).join("")}
       ${t("회사소개", "About", "a", 'data-link="#about"')}
       ${t("공고", "Notice", "a", 'data-link="notice/"')}
       ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
@@ -63,9 +78,7 @@
         </div>
         <div>
           ${t("놀이터", "Playground", "p", 'class="footer-key"')}
-          ${t("오늘 내 컨디션", "My Condition Today", "a", 'data-link="today/index.html"')}
-          ${t("아바타 포토", "Avatar Photo", "a", 'data-link="photo/"')}
-          ${t("업보 청산", "Let It Go", "a", 'data-link="karma/"')}
+          ${play.map(p => t(p.ko, p.en, "a", `data-link="${p.path}"`)).join("")}
         </div>
         <div>
           ${t("회사", "Company", "p", 'class="footer-key"')}
@@ -143,6 +156,11 @@
     body.classList.toggle("no-scroll", open);
   };
   menuBtn.addEventListener("click", () => setMenu(menu.hidden));
+  const drop = $(".nav-drop");
+  if (drop) {
+    $(".nav-drop-btn").addEventListener("click", e => { e.stopPropagation(); drop.classList.toggle("open"); });
+    document.addEventListener("click", () => drop.classList.remove("open"));
+  }
   menu.addEventListener("click", e => { if (e.target.closest("a")) setMenu(false); });
 
 
@@ -155,7 +173,8 @@
   const markNav = () => {
     const page = body.dataset.page;
     $$("[data-nav]").forEach(a => a.classList.toggle("active",
-      (a.dataset.nav === "service" && page.startsWith("service")) || a.dataset.nav === page));
+      (a.dataset.nav === "service" && page.startsWith("service")) ||
+      (a.dataset.nav === "play" && PLAY_PAGES.includes(page)) || a.dataset.nav === page));
   };
 
   /* ---------- 미리보기 전용: 페이지 전환 ---------- */
