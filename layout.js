@@ -64,6 +64,7 @@
   </div>`;
 
   /* ---------- 푸터 ---------- */
+  const C = CFG.company || {};
   $("#site-footer").outerHTML = `
   <footer class="footer">
     <div class="container footer-inner">
@@ -91,6 +92,18 @@
           <a class="insta-link" target="_blank" rel="noopener">Instagram @matspace.official</a>
         </div>
       </div>
+    </div>
+    <div class="container footer-biz">
+      <p>${[
+        ["상호", "맛스페이스 주식회사"],
+        ["대표이사", C.ceo],
+        ["사업자등록번호", C.bizNo],
+        ["통신판매업 신고번호", C.mailOrderNo],
+        ["주소", C.address],
+        ["전화", C.phone],
+        ["이메일", CFG.email],
+        ["호스팅 서비스 제공", C.hosting]
+      ].filter(x => x[1]).map(x => `<span>${x[0]} ${x[0]==="상호" ? C.name : x[1]}</span>`).join("")}</p>
     </div>
     <div class="container footer-bottom">
       <p>© <span class="year"></span> Mat Space. All rights reserved.<br />
