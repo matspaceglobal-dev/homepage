@@ -18,6 +18,7 @@ window.MATSPACE_CONFIG = {
   // 4) 서비스 메뉴 (서비스 ▾ 아래 목록) · name = 한국어, nameEn = 영어
   //    새 서비스 페이지를 만들면 여기에 한 줄 추가하면 메뉴에 자동으로 나타나요.
   services: [
-    { name: "사주일기", nameEn: "Saju Diary", path: "service/saju-diary/" }
+    { name: "사주일기", nameEn: "Saju Diary", path: "service/saju-diary/" },
+    { name: "기질 분석 리포트", nameEn: "Temperament Report", path: "report/" }
   ]
 };

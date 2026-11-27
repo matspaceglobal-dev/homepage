@@ -437,3 +437,20 @@ html[lang="en"] .hero h1 { font-size: clamp(34px, 4.4vw, 54px); }
 }
 .lg-tree details.lg-svc { margin: 0 0 4px 14px; }
 .lg-tree details.lg-svc > summary { font-weight: 700; font-size: 15px; padding: 6px 4px; }
+
+/* ===== 기질 분석 리포트 페이지 ===== */
+.rp-grid { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: 56px; align-items: start; }
+.rp-video video { width: 100%; border-radius: var(--radius-lg); background: #000; display: block; aspect-ratio: 9 / 16; object-fit: cover; }
+.rp-note { margin-top: 10px; font-size: 13px; color: var(--gray-400); text-align: center; }
+.rp-price { font-size: 20px; margin-bottom: 24px; }
+.rp-price b { font-size: 44px; font-weight: 800; letter-spacing: -.03em; }
+.rp-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; font-size: 16px; }
+.rp-table th, .rp-table td { padding: 13px 8px; border-bottom: 1px solid var(--gray-100); text-align: left; vertical-align: top; }
+.rp-table th { width: 110px; color: var(--gray-400); font-weight: 700; white-space: nowrap; }
+.rp-panel { margin-top: 28px; padding: 28px; border-radius: var(--radius-lg); background: var(--gray-50, #f6f6f4); }
+.rp-panel.is-closed { display: none; }
+.rp-panel h3 { font-size: 18px; margin: 0 0 10px; }
+.rp-panel h3:not(:first-child) { margin-top: 24px; }
+.rp-panel ol, .rp-panel ul { margin: 0 0 20px; padding-left: 20px; }
+.rp-panel li { margin-bottom: 6px; line-height: 1.7; }
+@media (max-width: 800px) { .rp-grid { grid-template-columns: 1fr; gap: 32px; } .rp-video { max-width: 300px; margin: 0 auto; } .rp-table th { width: 84px; } }

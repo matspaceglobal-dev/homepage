@@ -211,7 +211,7 @@
   const markNav = () => {
     const page = body.dataset.page;
     $$("[data-nav]").forEach(a => a.classList.toggle("active",
-      (a.dataset.nav === "service" && page.startsWith("service")) ||
+      (a.dataset.nav === "service" && (a.dataset.link||"").replace(/\/$/,"").replace(/\//g,"-") === page) ||
       (a.dataset.nav === "play" && PLAY_PAGES.includes(page)) || a.dataset.nav === page));
   };
 
