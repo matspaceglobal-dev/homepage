@@ -64,7 +64,7 @@
   </div>`;
 
   /* ---------- 푸터 ---------- */
-  const C = CFG.company || {};
+  const C = CFG.company || {}, E = C.en || {};
   $("#site-footer").outerHTML = `
   <footer class="footer">
     <div class="container footer-inner">
@@ -95,15 +95,15 @@
     </div>
     <div class="container footer-biz">
       <p>${[
-        ["상호", "맛스페이스 주식회사"],
-        ["대표이사", C.ceo],
-        ["사업자등록번호", C.bizNo],
-        ["통신판매업 신고번호", C.mailOrderNo],
-        ["주소", C.address],
-        ["전화", C.phone],
-        ["이메일", CFG.email],
-        ["호스팅 서비스 제공", C.hosting]
-      ].filter(x => x[1]).map(x => `<span>${x[0]} ${x[0]==="상호" ? C.name : x[1]}</span>`).join("")}</p>
+        ["상호", "Company", C.name, E.name],
+        ["대표이사", "CEO", C.ceo, E.ceo],
+        ["사업자등록번호", "Business Reg. No.", C.bizNo, C.bizNo],
+        ["통신판매업 신고번호", "E-commerce Reg. No.", C.mailOrderNo, E.mailOrderNo],
+        ["주소", "Address", C.address, E.address],
+        ["전화", "Tel", C.phone, E.phone],
+        ["이메일", "Email", CFG.email, CFG.email],
+        ["호스팅 서비스 제공", "Hosting", C.hosting, C.hosting]
+      ].filter(x => x[2]).map(x => `<span>${t(x[0], x[1])} ${t(x[2], x[3] || x[2])}</span>`).join("")}</p>
     </div>
     <div class="container footer-bottom">
       <p>© <span class="year"></span> Mat Space. All rights reserved.<br />

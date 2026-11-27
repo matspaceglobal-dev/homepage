@@ -23,7 +23,15 @@ window.MATSPACE_CONFIG = {
     mailOrderNo: "제 2026-서울영등포-2451 호",
     address: "서울특별시 영등포구 선유서로21길 14 2층 201-640호",
     phone: "1588-3008 (고객번호 1493-4472)",
-    hosting: "Vercel Inc."
+    hosting: "Vercel Inc.",
+    // 영어 화면에 나오는 표기
+    en: {
+      name: "Mat Space Co., Ltd.",
+      ceo: "Dohee Kim",
+      mailOrderNo: "2026-Seoul Yeongdeungpo-2451",
+      address: "#201-640, 2F, 14, Seonyu-seo-ro 21-gil, Yeongdeungpo-gu, Seoul, Republic of Korea",
+      phone: "1588-3008 (Customer No. 1493-4472)"
+    }
   },
 
   // 5) 서비스 메뉴 (서비스 ▾ 아래 목록) · name = 한국어, nameEn = 영어
