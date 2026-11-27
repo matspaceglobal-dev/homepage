@@ -93,6 +93,11 @@
         </div>
       </div>
     </div>
+    <div class="container footer-legal">${[
+      [CFG.legal && CFG.legal.terms, "이용약관", "Terms of Service", ""],
+      [CFG.legal && CFG.legal.privacy, "개인정보처리방침", "Privacy Policy", "strong"],
+      [CFG.legal && CFG.legal.refund, "환불정책", "Refund Policy", ""]
+    ].filter(x => x[0]).map(x => t(x[1], x[2], "a", `${/^https?:/.test(x[0]) ? `href="${x[0]}" target="_blank" rel="noopener"` : `data-link="${x[0]}"`}${x[3] ? ' class="strong"' : ""}`)).join("")}</div>
     <div class="container footer-biz">
       <p>${[
         ["상호", "Company", C.name, E.name],

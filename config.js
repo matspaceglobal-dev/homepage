@@ -34,6 +34,13 @@ window.MATSPACE_CONFIG = {
     }
   },
 
+  // 약관 링크 — 홈페이지 안 페이지(legal 폴더). 외부 주소(https://…)를 넣으면 새 창으로 열려요
+  legal: {
+    terms: "legal/terms/",
+    privacy: "legal/privacy/",
+    refund: ""
+  },
+
   // 5) 서비스 메뉴 (서비스 ▾ 아래 목록) · name = 한국어, nameEn = 영어
   //    새 서비스 페이지를 만들면 여기에 한 줄 추가하면 메뉴에 자동으로 나타나요.
   services: [
