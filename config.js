@@ -15,33 +15,7 @@ window.MATSPACE_CONFIG = {
   instagramUrl: "https://www.instagram.com/matspace.official/",
   email: "matspaceglobal@gmail.com",
 
-  // 4) 푸터 사업자 정보 (전화번호는 정해지면 phone 에 넣으면 자동으로 나타나요)
-  company: {
-    name: "맛스페이스 주식회사",
-    ceo: "김도희",
-    bizNo: "260-88-03892",
-    mailOrderNo: "제 2026-서울영등포-2451 호",
-    address: "서울특별시 영등포구 선유서로21길 14 2층 201-640호",
-    phone: "1588-3008 (고객번호 1493-4472)",
-    hosting: "Vercel Inc.",
-    // 영어 화면에 나오는 표기
-    en: {
-      name: "Mat Space Co., Ltd.",
-      ceo: "Dohee Kim",
-      mailOrderNo: "2026-Seoul Yeongdeungpo-2451",
-      address: "#201-640, 2F, 14, Seonyu-seo-ro 21-gil, Yeongdeungpo-gu, Seoul, Republic of Korea",
-      phone: "1588-3008 (Customer No. 1493-4472)"
-    }
-  },
-
-  // 약관 링크 — 홈페이지 안 페이지(legal 폴더). 외부 주소(https://…)를 넣으면 새 창으로 열려요
-  legal: {
-    terms: "legal/terms/",
-    privacy: "legal/privacy/",
-    refund: ""
-  },
-
-  // 5) 서비스 메뉴 (서비스 ▾ 아래 목록) · name = 한국어, nameEn = 영어
+  // 4) 서비스 메뉴 (서비스 ▾ 아래 목록) · name = 한국어, nameEn = 영어
   //    새 서비스 페이지를 만들면 여기에 한 줄 추가하면 메뉴에 자동으로 나타나요.
   services: [
     { name: "사주일기", nameEn: "Saju Diary", path: "service/saju-diary/" }
