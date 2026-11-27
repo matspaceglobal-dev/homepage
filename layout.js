@@ -115,7 +115,7 @@
     </div>
     <div class="container footer-legal">${[
       [LG.terms, "이용약관", "Terms of Service", ""],
-      [LG.privacy, "개인정보처리방침", "Privacy Policy", "strong"],
+      [LG.privacy, "개인정보처리방침", "Privacy Policy", ""],
       [LG.refund, "환불정책", "Refund Policy", ""]
     ].filter(x => x[0]).map(x => t(x[1], x[2], "a", `${/^https?:/.test(x[0]) ? `href="${x[0]}" target="_blank" rel="noopener"` : `data-link="${x[0]}"`}${x[3] ? ' class="strong"' : ""}`)).join("")}</div>
     <div class="container footer-biz">
