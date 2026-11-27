@@ -42,9 +42,6 @@
             ${play.map(p => t(`<b>${p.ko}</b><small>${p.dKo}</small>`, `<b>${p.en}</b><small>${p.dEn}</small>`, "a", `data-link="${p.path}"`)).join("")}
           </div>
         </div>
-        ${t("회사소개", "About", "a", 'data-link="#about" data-nav="home"')}
-        ${t("공고", "Notice", "a", 'data-link="notice/" data-nav="notice"')}
-        ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
       </nav>
       <div class="header-right">
         ${langBtn}
@@ -57,9 +54,6 @@
       ${services.map(sv => t(sv.name, sv.nameEn || sv.name, "a", `data-link="${sv.path}"`)).join("")}
       ${t("놀이터", "Playground", "p", 'class="mm-group"')}
       ${play.map(p => t("└ " + p.ko, "└ " + p.en, "a", `class="mm-sub" data-link="${p.path}"`)).join("")}
-      ${t("회사소개", "About", "a", 'data-link="#about"')}
-      ${t("공고", "Notice", "a", 'data-link="notice/"')}
-      ${t("문의하기", "Contact", "a", `href="mailto:${CFG.email}"`)}
     </nav>
   </div>`;
 
