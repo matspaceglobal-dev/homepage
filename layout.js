@@ -63,8 +63,28 @@
     </nav>
   </div>`;
 
+  /* ---------- 사업자 정보 · 약관 링크 (바꾸려면 이 부분만 고치세요) ---------- */
+  const COMPANY = {
+    name: "맛스페이스 주식회사",
+    ceo: "김도희",
+    bizNo: "260-88-03892",
+    mailOrderNo: "제2026-서울영등포-2451호",
+    address: "서울특별시 영등포구 선유서로21길 14 2층 201-640호",
+    phone: "1588-3008 (고객번호 1493-4472)",
+    hosting: "Vercel Inc.",
+    en: {
+      name: "Mat Space Co., Ltd.",
+      ceo: "Dohee Kim",
+      mailOrderNo: "2026-Seoul Yeongdeungpo-2451",
+      address: "#201-640, 2F, 14, Seonyu-seo-ro 21-gil, Yeongdeungpo-gu, Seoul, Republic of Korea",
+      phone: "1588-3008 (Customer No. 1493-4472)"
+    }
+  };
+  const LEGAL = { terms: "legal/terms/", privacy: "legal/privacy/", refund: "" };
+
   /* ---------- 푸터 ---------- */
-  const C = CFG.company || {}, E = C.en || {};
+  const C = Object.assign({}, COMPANY, CFG.company || {}), E = C.en || {};
+  const LG = Object.assign({}, LEGAL, CFG.legal || {});
   $("#site-footer").outerHTML = `
   <footer class="footer">
     <div class="container footer-inner">
@@ -94,9 +114,9 @@
       </div>
     </div>
     <div class="container footer-legal">${[
-      [CFG.legal && CFG.legal.terms, "이용약관", "Terms of Service", ""],
-      [CFG.legal && CFG.legal.privacy, "개인정보처리방침", "Privacy Policy", "strong"],
-      [CFG.legal && CFG.legal.refund, "환불정책", "Refund Policy", ""]
+      [LG.terms, "이용약관", "Terms of Service", ""],
+      [LG.privacy, "개인정보처리방침", "Privacy Policy", "strong"],
+      [LG.refund, "환불정책", "Refund Policy", ""]
     ].filter(x => x[0]).map(x => t(x[1], x[2], "a", `${/^https?:/.test(x[0]) ? `href="${x[0]}" target="_blank" rel="noopener"` : `data-link="${x[0]}"`}${x[3] ? ' class="strong"' : ""}`)).join("")}</div>
     <div class="container footer-biz">
       <p>${[
