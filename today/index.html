@@ -335,24 +335,24 @@ const TXT = {
   },
   en: {
     title: 'My Condition Today | Mat Space', home: '← Mat Space Home', eyebrow: 'MAT SPACE · 60 GAPJA AVATARS',
-    h1: 'My Condition Today', heroP: 'Your Ilju avatar<br>shows you what kind of day you\'re in for.',
-    pickTitle: 'Choose your Ilju (Day Pillar)', find: "Don't know your Ilju? Find it →", search: 'Search (e.g. ST, Sun Tiger, Tiger)', all: 'All',
+    h1: 'My Condition Today', heroP: 'Your avatar<br>shows you what kind of day you\'re in for.',
+    pickTitle: 'Choose your Type', find: "Don't know your Type? Find it →", search: 'Search (e.g. ST, Sun Tiger, Tiger)', all: 'All',
     tab: (s) => I18N.UI.en.stemTab(s), group: (s) => I18N.UI.en.stemGroup(s),
     empty: 'No match. Try a type like ST or an animal like Tiger.', hint: 'Tap the avatar',
-    prev: '◀ Yesterday', next: 'Tomorrow ▶', kvDay: "Today's day pillar", kvSip: 'Energy coming to me', kvElem: 'Element', kvScene: "Avatar's mood",
-    share: 'Copy my avatar link', change: 'Change Ilju', insta: 'Visit our Instagram', pc: 'Get the desktop version',
+    prev: '◀ Yesterday', next: 'Tomorrow ▶', kvDay: "Type of the day", kvSip: 'Energy coming to me', kvElem: 'Element', kvScene: "Avatar's mood",
+    share: 'Copy my avatar link', change: 'Change Type', insta: 'Visit our Instagram', pc: 'Get the desktop version',
     copied: 'Link copied!', copyPrompt: 'Copy this link',
     week: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
     fmt: (d, w) => `${w[d.getDay()]}, ${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`,
     when: (o) => o === 0 ? 'Today' : o === -1 ? 'Yesterday' : o === 1 ? 'Tomorrow' : (o > 0 ? `In ${o} days` : `${-o} days ago`),
-    chip: (f, day) => `Today ${f} · ${I18N.iljuName(day.name, 'en')} day`,
-    dayShort: (day) => `${I18N.iljuName(day.name, 'en')} ${I18N.iljuHanja(day.name)}`,
+    chip: (f, day) => `Today ${f} · ${I18N.typeCode(day.name)} Type day`,
+    dayShort: (day) => `${I18N.typeCode(day.name)} Type ${I18N.iljuHanja(day.name)}`,
     whoSub: (g) => `${I18N.title(g, 'en')} · ${I18N.iljuHanja(g)}`,
-    tag: (w, day, sip, el) => `${w} · ${I18N.iljuName(day.name, 'en')} day · <b>${sip}</b> (${el})`,
+    tag: (w, day, sip, el) => `${w} · ${I18N.typeCode(day.name)} Type day · <b>${sip}</b> (${el})`,
     meaning: (day, el, sip, m) => `<b>${I18N.iljuName(day.name, 'en').split('-')[0]} ${el}</b> energy comes to you as <b>${sip}</b>. ${m}`,
-    lore: [['✦ The Heavenly Stem is what they hold', 'Gap Wood is a big tree, Byeong Fire is the sun, Im Water is the ocean — each avatar holds or carries the energy of its Day Master.'],
-           ['✦ The Earthly Branch is the animal and its true color', 'The In (Wood) Tiger is blue-green and the O (Fire) Horse is red — each animal keeps the color of its own element.'],
-           ['✦ A new mood every day', "Depending on how today's stem relates to you (the Ten Gods), your avatar naps, runs, or stands at attention."]],
+    lore: [['', 'Your avatar holds or carries an energy like a tree, the sun or the ocean in its hands.'],
+           ['', 'Each animal shows its original color from its element — a tiger is green and a horse is red.'],
+           ['', "Depending on each day's energy, your avatar lies down, runs and does all kinds of things as the day goes by."]],
     MEANING: {
       '비견': 'Energy just like yours arrives. You gain allies — and a little friendly competition.',
       '겁재': 'A day when what\'s yours may need sharing. Keep an extra eye on your wallet and your heart.',
@@ -406,7 +406,7 @@ function applyLang() {
   $('hint').textContent = t.hint; $('prev').textContent = t.prev; $('next').textContent = t.next;
   $('kvDayL').textContent = t.kvDay; $('kvSipL').textContent = t.kvSip; $('kvElemL').textContent = t.kvElem; $('kvSceneL').textContent = t.kvScene;
   $('share').textContent = t.share; $('change').textContent = t.change; $('insta').textContent = t.insta; $('pcDown').textContent = t.pc;
-  t.lore.forEach(([h, p], i) => { $('l' + (i + 1) + 'h').textContent = h; $('l' + (i + 1) + 'p').textContent = p; });
+  t.lore.forEach(([h, p], i) => { const hh = $('l' + (i + 1) + 'h'); hh.textContent = h; hh.hidden = !h; $('l' + (i + 1) + 'p').textContent = p; });
   $('lk').classList.toggle('on', LANG === 'ko'); $('le').classList.toggle('on', LANG === 'en');
   $('todayChip').textContent = t.chip(fmt(dateAt(0)), SAJU.dayPillar(dateAt(0)));
   if (!$('picker').hidden) { renderTabs(); renderList(); }

@@ -23,6 +23,7 @@
   function iljuName(ilju, lang) {
     return lang === 'en' ? `${STEM_ROMA[ilju[0]]}-${BRANCH_ROMA[ilju[1]]}` : ilju;
   }
+  function typeCode(ilju) { return TYPES[ilju].code; }
   function avatarName(ilju, lang) { return lang === 'en' ? `${TYPES[ilju].code} Type` : ilju; }
   function typeDesc(ilju) { return TYPES[ilju].desc; }
   function iljuHanja(ilju) { return STEM_HANJA[ilju[0]] + BRANCH_HANJA[ilju[1]]; }
@@ -32,7 +33,7 @@
   }
   function sip(name, lang) { return lang === 'en' ? SIPSUNG_EN[name] : name; }
   function elem(name, lang) { return lang === 'en' ? ELEM_EN[name] : name; }
-  function dayName(day, lang) { return lang === 'en' ? `${iljuName(day.name, 'en')} day` : `${day.name}일`; }
+  function dayName(day, lang) { return lang === 'en' ? `${typeCode(day.name)} Type day` : `${day.name}일`; }
 
   function reactions(ilju, lang) {
     const s = SOUND[lang][ilju[1]];
@@ -72,24 +73,24 @@
     },
     en: {
       loading: "Gathering today's energy…",
-      dayTag: (d, day, s, e) => `${d.getMonth()+1}/${d.getDate()} ${iljuName(day.name, 'en')} day · <b>${s}</b> (${e})`,
+      dayTag: (d, day, s, e) => `${d.getMonth()+1}/${d.getDate()} ${typeCode(day.name)} Type day · <b>${s}</b> (${e})`,
       seasonEnd: (season, snd) => `${season === '시즌1' ? 'Season 1' : season} is over! Get the next season on Instagram ${snd}~`,
-      seasonNotice: () => 'Mat Space Ilju Avatar notice',
+      seasonNotice: () => 'Mat Space Avatar notice',
       seasonCta: 'Get the next season on Instagram →',
-      setupTitle: 'Choose your Ilju (Day Pillar)',
-      setupSub: 'Your Ilju avatar lives on your desktop and tells you the energy of each day. Don\'t know your Ilju?',
+      setupTitle: 'Choose your Type',
+      setupSub: 'Your avatar lives on your desktop and tells you the energy of each day. Don\'t know your Type?',
       setupFind: 'Find it on our site',
       search: 'Search (e.g. ST, Sun Tiger, Tiger)',
       all: 'All',
       stemGroup: (s) => ({ '갑':'T · Tree','을':'F · Flower','병':'S · Sun','정':'C · Candle','무':'M · Mountain','기':'G · Garden','경':'K · Knife','신':'J · Jewelry','임':'O · Ocean','계':'R · Rain' })[s] + ` (${STEM_ROMA[s]} ${STEM_HANJA[s]})`,
       stemTab: (s) => ({ '갑':'Tree','을':'Flower','병':'Sun','정':'Candle','무':'Mountain','기':'Garden','경':'Knife','신':'Jewelry','임':'Ocean','계':'Rain' })[s],
       noPick: 'Nothing chosen yet',
-      picked: (g, t) => `Your Ilju <b>${g}</b> · ${t}`,
+      picked: (g, t) => `Your Type <b>${g}</b> · ${t}`,
       autostart: 'Launch at startup',
       start: 'Start',
       empty: 'No match. Try a type like ST or an animal like Tiger.'
     }
   };
 
-  root.I18N = { TYPES, avatarName, typeDesc, UI, SOUND, COMMON, iljuName, iljuHanja, title, sip, elem, dayName, reactions, ANIMAL_EN, MULSANG_EN, SIPSUNG_EN, ELEM_EN };
+  root.I18N = { TYPES, typeCode, avatarName, typeDesc, UI, SOUND, COMMON, iljuName, iljuHanja, title, sip, elem, dayName, reactions, ANIMAL_EN, MULSANG_EN, SIPSUNG_EN, ELEM_EN };
 })(typeof window !== 'undefined' ? window : globalThis);

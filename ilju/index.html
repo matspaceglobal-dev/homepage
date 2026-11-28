@@ -45,14 +45,14 @@
   @media (max-width: 560px) { .il-card { padding: 30px 20px; } .il-body { padding-top: 40px; } .il-info { gap: 8px; } .il-i { padding: 14px 10px 13px; } .il-i b { font-size: 20px; } }
 </style>
 </head>
-<body data-root="../" data-page="ilju" data-title-en="Find My Ilju | Mat Space">
+<body data-root="../" data-page="ilju" data-title-en="Find My Type | Mat Space">
   <div id="site-header"></div>
   <main>
     <section class="page-hero">
       <div class="blob blob-1" aria-hidden="true"></div>
       <div class="container">
-        <h1 data-en="Find My Ilju">내 일주 찾기</h1>
-        <p data-en="Enter your birth date and meet your Ilju avatar.">생년월일만 넣으면 나의 일주 아바타를 알려드려요.</p>
+        <h1 data-en="Find My Type">내 일주 찾기</h1>
+        <p data-en="Enter your birth date and meet your avatar.">생년월일만 넣으면 나의 일주 아바타를 알려드려요.</p>
       </div>
     </section>
 
@@ -68,7 +68,7 @@
             <div class="il-field"><label for="d" data-en="Day">일</label><input id="d" type="number" inputmode="numeric" placeholder="15" min="1" max="31"></div>
           </div>
           <p class="il-err" id="err" role="alert"></p>
-          <button class="btn btn-yellow il-go" type="submit" data-en="Find my Ilju">일주 확인하기</button>
+          <button class="btn btn-yellow il-go" type="submit" data-en="Find my Type">일주 확인하기</button>
           <p class="il-note" data-en="Based on the solar birth date only. Birth time is not reflected.">양력 생년월일 기준이며, 태어난 시간은 반영하지 않아요.</p>
         </form>
 
@@ -170,9 +170,9 @@
       if (!current) return;
       const g = current, L = lang();
       $("#avImg").src = "../today/img/" + g + ".webp"; $("#avImg").alt = I18N.avatarName(g, L);
-      $("#chip").textContent = tr("나의 일주", "My Ilju");
-      $("#name").textContent = I18N.iljuName(g, L);
-      $("#hanja").textContent = L === "ko" ? I18N.iljuHanja(g) : I18N.avatarName(g, L);
+      $("#chip").textContent = tr("나의 일주", "My Type");
+      $("#name").textContent = L === "ko" ? I18N.iljuName(g, L) : I18N.avatarName(g, L);
+      $("#hanja").textContent = I18N.iljuHanja(g);
       $("#title").textContent = I18N.title(g, L);
       renderInfo(g, L);
       $("#goPhoto").href = "../photo/?ilju=" + encodeURIComponent(g) + (L === "en" ? "&lang=en" : "");
