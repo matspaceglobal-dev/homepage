@@ -70,10 +70,10 @@
             <label class="field"><span>신청자 이름 (아이 리포트라면 보호자 성함)</span><input id="applicant" type="text" autocomplete="name" maxlength="40" /></label>
             <label class="field"><span>리포트를 받을 이메일</span><input id="email" type="email" autocomplete="email" maxlength="100" /></label>
             <label class="field"><span>휴대폰 번호 (결제사 필수 입력 · 예: 01012345678)</span><input id="phone" type="tel" inputmode="numeric" autocomplete="tel" maxlength="13" /></label>
-            <p class="pt-legend">리포트 언어 (복수 선택 가능)</p>
+            <p class="pt-legend">리포트 언어</p>
             <div class="pt-choice" style="margin-bottom:6px">
-              <label><input type="checkbox" name="lang" value="한글" checked /> 한글</label>
-              <label><input type="checkbox" name="lang" value="영어" /> 영어 (English)</label>
+              <label><input type="radio" name="lang" value="한글" checked /> 한글</label>
+              <label><input type="radio" name="lang" value="영어" /> 영어 (English)</label>
             </div>
 
             <div class="pt-consent">
@@ -118,6 +118,7 @@
     const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
     const won = n => Number(n).toLocaleString("ko-KR") + "원";
     const err = m => { $("#err").textContent = m || ""; };
+    let paidId = "";
 
     function read() {
       return {
@@ -131,7 +132,7 @@
         applicant: $("#applicant").value.trim(),
         email: $("#email").value.trim(),
         phone: $("#phone").value.replace(/[^0-9]/g, ""),
-        langs: [...document.querySelectorAll('input[name="lang"]:checked')].map(x => x.value).join(", ")
+        langs: (document.querySelector('input[name="lang"]:checked') || {}).value || ""
       };
     }
     function validate(f) {
@@ -143,9 +144,25 @@
       if (!f.applicant) return "신청자 이름을 입력해 주세요.";
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) return "이메일 주소를 확인해 주세요.";
       if (!/^01[0-9][0-9]{7,8}$/.test(f.phone)) return "휴대폰 번호를 확인해 주세요. (예: 01012345678)";
-      if (!f.langs) return "리포트 언어를 하나 이상 선택해 주세요.";
+      if (!f.langs) return "리포트 언어를 선택해 주세요.";
       if (!$("#agree1").checked || !$("#agree2").checked) return "두 가지 동의 항목에 모두 체크해 주세요.";
       return "";
+    }
+    // 만세력 접수 목록(intake)과 같은 항목으로 변환 (한국 출생은 도시 입력 없이 "서울")
+    function toOrder(f) {
+      const b = (f.birth || "").split("-"), t = (f.time || "").split(":");
+      const o = {
+        name: f.name, email: f.email,
+        sex: f.gender === "남" ? "M" : "F",
+        y: parseInt(b[0], 10), m: parseInt(b[1], 10), d: parseInt(b[2], 10),
+        unk: !f.time,
+        birthCity: f.place === "해외" ? f.city : "서울",
+        kind: /^본인/.test(f.who) ? "adult" : "kid",
+        lang: f.langs === "영어" ? "en" : "ko",
+        consent: true, payer: f.applicant
+      };
+      if (f.time) { o.h = parseInt(t[0], 10); o.mi = parseInt(t[1], 10); }
+      return o;
     }
     function showOk(f, v) {
       const rows = [
@@ -153,7 +170,8 @@
         ["리포트 대상", f.who], ["이름", f.name], ["성별", f.gender],
         ["생년월일", f.birth], ["태어난 시각", f.time || "모름"],
         ["태어난 곳", f.place === "해외" ? "해외 · " + f.city : "한국"], ["신청자 이름", f.applicant],
-        ["이메일", f.email], ["휴대폰 번호", f.phone], ["리포트 언어", f.langs]
+        ["이메일", f.email], ["휴대폰 번호", f.phone], ["리포트 언어", f.langs],
+        ["접수 번호", v.intake ? v.intake.intakeId : "접수 정보 없음(결제만 확인)"]
       ];
       $("#okTbl").innerHTML = rows.map(r => "<tr><th>" + esc(r[0]) + "</th><td>" + esc(r[1]) + "</td></tr>").join("");
       $("#formCard").hidden = true; $("#okCard").hidden = false;
@@ -170,12 +188,16 @@
       const btn = $("#payBtn"); btn.disabled = true; btn.textContent = "결제창을 여는 중…";
       try { sessionStorage.setItem(KEY, JSON.stringify(f)); } catch (x) {}
       try {
+        // 결제는 끝났는데 접수 저장만 실패한 경우: 다시 결제하지 않고 같은 주문번호로 접수만 재시도
+        if (paidId) { btn.textContent = "접수 중…"; showOk(f, await MatPay.verify(paidId, toOrder(f))); return; }
         const r = await MatPay.pay({ name: f.applicant, email: f.email, phone: f.phone }, location.origin + location.pathname);
+        paidId = r.paymentId;
         btn.textContent = "결제 확인 중…";
-        showOk(f, await MatPay.verify(r.paymentId));
+        showOk(f, await MatPay.verify(r.paymentId, toOrder(f)));
       } catch (x) {
         err(x.message || "결제에 실패했어요.");
-        btn.disabled = false; btn.textContent = "14,900원 결제하기";
+        if (x.paid) { paidId = x.paymentId || paidId; btn.disabled = false; btn.textContent = "접수 다시 시도"; }
+        else { paidId = ""; btn.disabled = false; btn.textContent = "14,900원 결제하기"; }
       }
     });
 
@@ -186,7 +208,7 @@
       history.replaceState(null, "", location.pathname);
       if (q.get("code")) return err(q.get("message") || "결제가 취소되었거나 실패했어요.");
       const f = loadSaved() || { who: "", name: "", gender: "", birth: "", time: "", place: "한국", city: "", applicant: "", email: "", phone: "", langs: "" };
-      try { showOk(f, await MatPay.verify(pid)); } catch (x) { err(x.message); }
+      try { showOk(f, await MatPay.verify(pid, f.name ? toOrder(f) : undefined)); } catch (x) { err(x.message); if (x.paid) { paidId = pid; $("#payBtn").textContent = "접수 다시 시도"; } }
     })();
   })();
   </script>

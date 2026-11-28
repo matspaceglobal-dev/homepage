@@ -56,12 +56,46 @@ module.exports = async function handler(req, res) {
     return send(res, 409, { ok: false, error: "주문 상품이 일치하지 않습니다." });
   }
 
-  return send(res, 200, {
+  const result = {
     ok: true,
     paymentId: paymentId,
     status: payment.status,
     amount: total,
     orderName: payment.orderName || EXPECTED_ORDER_NAME,
     paidAt: payment.paidAt || null
+  };
+
+  // 결제가 확인된 신청 정보만 만세력 접수 목록으로 전달 (신청 정보가 없으면 결제 검증만 수행)
+  const order = body && body.order && typeof body.order === "object" ? body.order : null;
+  if (!order) return send(res, 200, result);
+
+  const intakeUrl = process.env.INTAKE_URL;
+  const intakeSecret = process.env.INTAKE_SECRET;
+  if (!intakeUrl || !intakeSecret) {
+    return send(res, 500, { ok: false, paid: true, paymentId: paymentId, error: "결제는 확인되었지만 접수 연결이 설정되지 않았습니다. 주문번호를 알려주세요." });
+  }
+  const payload = { paymentId: paymentId, amount: total };
+  ["name", "email", "sex", "y", "m", "d", "h", "mi", "unk", "birthCity", "kind", "lang", "consent", "payer"].forEach(function (k) {
+    if (order[k] !== undefined) payload[k] = order[k];
   });
+  try {
+    const ctl = new AbortController();
+    const timer = setTimeout(function () { ctl.abort(); }, 15000);
+    const r = await fetch(intakeUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-intake-secret": intakeSecret },
+      body: JSON.stringify(payload),
+      signal: ctl.signal
+    });
+    clearTimeout(timer);
+    let d = {};
+    try { d = await r.json(); } catch (e) {}
+    if (!r.ok || !d.ok) {
+      return send(res, 502, { ok: false, paid: true, paymentId: paymentId, error: "결제는 확인되었지만 접수 저장에 실패했습니다. 잠시 후 '접수 다시 시도'를 눌러 주세요. (주문번호 " + paymentId + ")" });
+    }
+    result.intake = { intakeId: d.intakeId, duplicate: !!d.duplicate };
+    return send(res, 200, result);
+  } catch (e) {
+    return send(res, 502, { ok: false, paid: true, paymentId: paymentId, error: "결제는 확인되었지만 접수 저장에 실패했습니다. 잠시 후 '접수 다시 시도'를 눌러 주세요. (주문번호 " + paymentId + ")" });
+  }
 };

@@ -34,16 +34,21 @@ window.MatPay = (function () {
     return { paymentId: paymentId };
   }
 
-  // 서버 검증 (PAID + 14,900원 일치)
-  async function verify(paymentId) {
+  // 서버 검증 (PAID + 14,900원 일치). order 를 함께 보내면 검증 통과 후 만세력 접수 목록에도 저장됩니다.
+  // 같은 paymentId 로 다시 호출해도 접수는 한 번만 만들어져요.
+  async function verify(paymentId, order) {
     const r = await fetch(CONFIG.VERIFY_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ paymentId: paymentId })
+      body: JSON.stringify({ paymentId: paymentId, order: order || undefined })
     });
     let data = {};
     try { data = await r.json(); } catch (e) {}
-    if (!r.ok || !data.ok) throw new Error(data.error || "결제 검증에 실패했어요.");
+    if (!r.ok || !data.ok) {
+      const e = new Error(data.error || "결제 검증에 실패했어요.");
+      e.paid = !!data.paid; e.paymentId = paymentId;
+      throw e;
+    }
     return data;
   }
 
