@@ -27,7 +27,7 @@ window.MatPay = (function () {
       totalAmount: CONFIG.AMOUNT,
       currency: "CURRENCY_KRW",
       payMethod: "CARD",
-      customer: { fullName: customer.name, email: customer.email },
+      customer: { fullName: customer.name, email: customer.email, phoneNumber: customer.phone },
       redirectUrl: redirectUrl
     });
     if (res && res.code != null) throw new Error(res.message || "결제가 취소되었거나 실패했어요.");
