@@ -724,14 +724,14 @@ window.LINES = {
  },
  "en": {
   "갑자": [
-   "Who's this rat that looks exactly like me? Doppelgänger?! Squeak squeak",
+   "Who's this mouse that looks exactly like me? Doppelgänger?! Squeak squeak",
    "I see you eyeing my cheese… wallet on lockdown. Squeak squeak",
    "Eat, nap, eat again. Cheeks fully loaded. Squeak squeak",
    "Squeak squeak squeak, too much to say… someone stop me. Squeak squeak",
    "I smell a big win! Let's gooo. Squeak squeak",
    "Every crumb counts. One more acorn saved today. Squeak",
    "Hiding in my mouse hole today… don't look for me. Squeak squeak",
-   "By-the-book rat today. Whatever you ask, done. Squeak squeak",
+   "By-the-book mouse today. Whatever you ask, done. Squeak squeak",
    "Spacing out up this tree… why did I climb here again? Squeak squeak",
    "Someone's taking care of me today~ growing just by sitting here. Squeak squeak"
   ],
@@ -797,7 +797,7 @@ window.LINES = {
   ],
   "을축": [
    "The big tree took all my sunlight… I'll protect my flower. Moo",
-   "Another ox with a flower? Let's slowly see who's prettier. Moo",
+   "Another cow with a flower? Let's slowly see who's prettier. Moo",
    "So much to say today… but I talk so slow nobody hears the end. Moo",
    "A warm bowl of hay. This is happiness. Moo",
    "Got a little patch of field. Building it up, row by row. Moo",
@@ -870,12 +870,12 @@ window.LINES = {
   "병자": [
    "Why did firewood show up at midnight? Stack it first, think later. Squeak",
    "Someone tucked me in. Too warm to leave. Squeak",
-   "Another rat holding the sun?! You can't have my cheese. Squeak",
+   "Another mouse holding the sun?! You can't have my cheese. Squeak",
    "Someone's peeking into my pantry… lock everything! Squeak!",
    "Sun-dried grains, nom nom. Cheeks fully loaded. Squeak",
    "Squeak squeak squeak— my chatter off-button is broken",
    "Something shiny! Finders keepers. Squeak",
-   "One gem saved in my mouse hole. Future rich rat. Squeak",
+   "One gem saved in my mouse hole. Future rich mouse. Squeak",
    "Flood alert! Hanging on the rooftop and holding on. Squeak",
    "Line-up day today. Front row is mine. Squeak"
   ],
@@ -943,12 +943,12 @@ window.LINES = {
    "Someone added firewood. Cozy barn~ just receiving. Moo",
    "Vines dropped by my candle… what's this? Slowly thinking. Moo",
    "The sun covered my candlelight… guarding my feed first. Moo",
-   "Another ox with a candle. Slow flame contest. Moo",
+   "Another cow with a candle. Slow flame contest. Moo",
    "Talkative today… but so slow nobody notices. Moo",
    "Warming hay by the candle. Toasty. Moo",
    "Saved one bell, diligently. Living my best life. Moo",
    "Found shiny jewelry! Slow, but definitely buying. Moo",
-   "Holding my candle with perfect posture. By-the-book ox today. Moo",
+   "Holding my candle with perfect posture. By-the-book cow today. Moo",
    "Rain almost put out my candle… lying down to rest. Moo…"
   ],
   "정묘": [
@@ -1013,10 +1013,10 @@ window.LINES = {
   ],
   "무자": [
    "A big tree burst through my mountain… evacuating to my mouse hole. Squeak squeak…",
-   "Dressed up with flowers. Neat and proper rat today. Squeak squeak",
+   "Dressed up with flowers. Neat and proper mouse today. Squeak squeak",
    "Watching the sun from my mountain… why am I tearing up? Oh, it's bright. Squeak squeak?",
    "Someone lit a lantern for me. Grateful, just receiving. Squeak squeak",
-   "Another rat with a mountain! Whose is taller? Squeak squeak",
+   "Another mouse with a mountain! Whose is taller? Squeak squeak",
    "Someone scooped a corner of my mountain! Lock the pantry! Squeak squeak!",
    "Digging up acorns on the mountain. Cheeks full. Squeak squeak",
    "Squeak squeak squeak— even the echo is chatting",
@@ -1089,7 +1089,7 @@ window.LINES = {
    "The sun warms my field. Toasty, just receiving. Moo",
    "The lantern's flickering… what's that? Slowly thinking. Moo",
    "Someone's eyeing my field. Guarding my feed first. Moo",
-   "Another ox with soil. Whose field is richer? Moo",
+   "Another cow with soil. Whose field is richer? Moo",
    "Plowing and chatting… but way too slow. Moo",
    "Eating the harvest right away. This is happiness. Moo",
    "Secured a rice paddy, steadily. Living my best life. Moo",
@@ -1159,10 +1159,10 @@ window.LINES = {
    "Found a big tree! Slice slice, big earnings today. Squeak squeak!",
    "Cut one pretty flower and saved it. Squeak squeak",
    "Armor's heating up in the sun… resting in my mouse hole. Squeak squeak…",
-   "Sword sharpened at the forge. Knight rat clocking in. Squeak squeak",
+   "Sword sharpened at the forge. Knight mouse clocking in. Squeak squeak",
    "Spacing out in front of a mountain… why am I here? Squeak squeak?",
    "Someone polished the rust off my armor. Just receiving. Squeak squeak",
-   "Another rat with a sword! Sword fight! Squeak squeak",
+   "Another mouse with a sword! Sword fight! Squeak squeak",
    "A jewel-holder's peeking into my pantry… lock it! Squeak squeak!",
    "Washing my sword in cool water, snack time. Squeak squeak",
    "Squeak squeak squeak squeak— chatter in rhythm with the rain"
@@ -1235,7 +1235,7 @@ window.LINES = {
    "The mountain embraces my gem. Warm, just receiving. Moo",
    "Where did I bury my gem… slowly thinking. Moo",
    "A sword-holder's after my gem. Hiding it under the trough. Moo",
-   "Another ox with a gem. Slow shine contest. Moo",
+   "Another cow with a gem. Slow shine contest. Moo",
    "Chatting while polishing gems… but slowly. Moo",
    "Dewy hay, nom nom. Eating day today. Moo"
   ],
@@ -1308,7 +1308,7 @@ window.LINES = {
    "Built a dam and lined up. Attention! Squeak squeak",
    "Water's gushing from the rocks… why? Zoning out. Squeak squeak?",
    "Someone brought me fresh spring water. Just receiving. Squeak squeak",
-   "Another rat with an ocean! Wave battle. Squeak squeak",
+   "Another mouse with an ocean! Wave battle. Squeak squeak",
    "A raindrop-holder's peeking into my pantry… lock it! Squeak squeak!"
   ],
   "임인": [
@@ -1376,12 +1376,12 @@ window.LINES = {
    "Dewy grass, nom nom. Happy and fresh. Moo",
    "Dew sparkling in the sun, saving one drop at a time. Moo",
    "I'll go wherever there's a lantern. Slow but sure. Moo",
-   "Perfect posture under the mountain. By-the-book ox today. Moo",
+   "Perfect posture under the mountain. By-the-book cow today. Moo",
    "Stuck in the mud… resting in the barn. Moo…",
    "A rock shields me from the rain. Just receiving. Moo",
    "Watching dew on a gem, slowly zoning out. Moo?",
    "Big water wants to swallow my dew. Guarding my feed first. Moo",
-   "Another ox with raindrops. Slow droplet contest. Moo"
+   "Another cow with raindrops. Slow droplet contest. Moo"
   ],
   "계묘": [
    "Chattering in the tree shade, ears flapping. Hop",
