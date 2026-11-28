@@ -97,7 +97,7 @@
         </div>
 
         <div class="pt-card pt-ok" id="okCard" hidden>
-          <p class="pt-banner">테스트 결제 · 서버 검증 완료</p>
+          <p class="pt-banner" id="okBanner">테스트 결제 · 서버 검증 완료</p>
           <h2>주문이 접수되었어요</h2>
           <table class="pt-tbl" id="okTbl"></table>
         </div>
@@ -166,13 +166,14 @@
     }
     function showOk(f, v) {
       const rows = [
-        ["주문번호", v.paymentId], ["상품", v.orderName], ["결제 금액", won(v.amount)],
+        ["주문번호", v.paymentId], ["상품", v.orderName], ["결제 금액", v.test ? "결제 안 함 (테스트)" : won(v.amount)],
         ["리포트 대상", f.who], ["이름", f.name], ["성별", f.gender],
         ["생년월일", f.birth], ["태어난 시각", f.time || "모름"],
         ["태어난 곳", f.place === "해외" ? "해외 · " + f.city : "한국"], ["신청자 이름", f.applicant],
         ["이메일", f.email], ["휴대폰 번호", f.phone], ["리포트 언어", f.langs],
         ["접수 번호", v.intake ? v.intake.intakeId : "접수 정보 없음(결제만 확인)"]
       ];
+      $("#okBanner").textContent = v.test ? "테스트 접수 · 결제 없이 접수됨" : "테스트 결제 · 서버 검증 완료";
       $("#okTbl").innerHTML = rows.map(r => "<tr><th>" + esc(r[0]) + "</th><td>" + esc(r[1]) + "</td></tr>").join("");
       $("#formCard").hidden = true; $("#okCard").hidden = false;
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -189,6 +190,7 @@
       try { sessionStorage.setItem(KEY, JSON.stringify(f)); } catch (x) {}
       try {
         // 결제는 끝났는데 접수 저장만 실패한 경우: 다시 결제하지 않고 같은 주문번호로 접수만 재시도
+        if (MatPay.CONFIG.TEST_SKIP_PAYMENT) { btn.textContent = "테스트 접수 중…"; showOk(f, await MatPay.submitTest(toOrder(f))); return; }
         if (paidId) { btn.textContent = "접수 중…"; showOk(f, await MatPay.verify(paidId, toOrder(f))); return; }
         const r = await MatPay.pay({ name: f.applicant, email: f.email, phone: f.phone }, location.origin + location.pathname);
         paidId = r.paymentId;

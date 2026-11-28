@@ -7,7 +7,10 @@ window.MatPay = (function () {
     CHANNEL_KEY: "channel-key-76f315bd-a9a2-450b-b5a4-f538a3327d19",
     ORDER_NAME: "기질 분석 리포트",
     AMOUNT: 14900,
-    VERIFY_URL: "/api/portone-verify"
+    VERIFY_URL: "/api/portone-verify",
+    // ▸ true: 결제창 없이 접수만 테스트 (서버의 INTAKE_TEST_MODE=1 일 때만 동작)
+    // ▸ 실결제로 바꿀 때는 false 로 바꾸고, Vercel 의 INTAKE_TEST_MODE 도 삭제하세요.
+    TEST_SKIP_PAYMENT: true
   };
 
   function newPaymentId() {
@@ -52,5 +55,18 @@ window.MatPay = (function () {
     return data;
   }
 
-  return { CONFIG: CONFIG, pay: pay, verify: verify };
+  // 테스트 접수 (결제 없이)
+  async function submitTest(order) {
+    const r = await fetch(CONFIG.VERIFY_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ testMode: true, order: order })
+    });
+    let data = {};
+    try { data = await r.json(); } catch (e) {}
+    if (!r.ok || !data.ok) throw new Error(data.error || "테스트 접수에 실패했어요.");
+    return data;
+  }
+
+  return { CONFIG: CONFIG, pay: pay, verify: verify, submitTest: submitTest };
 })();
