@@ -349,7 +349,7 @@ const TXT = {
     dayShort: (day) => `${I18N.typeCode(day.name)} Type ${I18N.iljuHanja(day.name)}`,
     whoSub: (g) => `${I18N.title(g, 'en')} · ${I18N.iljuHanja(g)}`,
     tag: (w, day, sip, el) => `${w} · ${I18N.typeCode(day.name)} Type day · <b>${sip}</b> (${el})`,
-    meaning: (day, el, sip, m) => `<b>${I18N.iljuName(day.name, 'en').split('-')[0]} ${el}</b> energy comes to you as <b>${sip}</b>. ${m}`,
+    meaning: (day, el, sip, m) => `<b>${I18N.stemName(day.stem)} (${el})</b> energy comes to you as <b>${sip}</b>. ${m}`,
     lore: [['', 'Your avatar holds or carries an energy like a tree, the sun or the ocean in its hands.'],
            ['', 'Each animal shows its original color from its element — a tiger is green and a horse is red.'],
            ['', "Depending on each day's energy, your avatar lies down, runs and does all kinds of things as the day goes by."]],

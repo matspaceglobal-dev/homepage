@@ -156,11 +156,10 @@
           ["나의 일지동물", SAJU.ANIMAL[br], "", null]
         ];
       } else {
-        const rm = I18N.iljuName(g, "en").split("-").map(x => x[0].toUpperCase() + x.slice(1));
         cards = [
-          ["My Day Stem", I18N.ELEM_EN[se], rm[0] + " · " + sh, se],
-          ["My Day Branch", I18N.ELEM_EN[be], rm[1] + " · " + bh, be],
-          ["My Branch Animal", I18N.ANIMAL_EN[br], "", null]
+          ["My Object", I18N.stemName(stem), I18N.ELEM_EN[se] + " · " + sh + EL_HANJA[se], se],
+          ["My Animal's Element", I18N.ELEM_EN[be], bh + EL_HANJA[be], be],
+          ["My Animal", I18N.ANIMAL_EN[br], "", null]
         ];
       }
       $("#info").innerHTML = cards.map(c => `<div class="il-i"><small>${c[0]}</small><b>${c[3] ? `<span class="il-dot e-${c[3]}"></span>` : ""}${c[1]}</b><em>${c[2]}</em></div>`).join("");

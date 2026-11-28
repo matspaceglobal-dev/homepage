@@ -4,9 +4,9 @@
   const BRANCH_ROMA = { '자':'ja','축':'chuk','인':'in','묘':'myo','진':'jin','사':'sa','오':'o','미':'mi','신':'sin','유':'yu','술':'sul','해':'hae' };
   const STEM_HANJA = { '갑':'甲','을':'乙','병':'丙','정':'丁','무':'戊','기':'己','경':'庚','신':'辛','임':'壬','계':'癸' };
   const BRANCH_HANJA = { '자':'子','축':'丑','인':'寅','묘':'卯','진':'辰','사':'巳','오':'午','미':'未','신':'申','유':'酉','술':'戌','해':'亥' };
-  const MULSANG_EN = { '갑':'the Big Tree','을':'the Flower','병':'the Sun','정':'the Candle','무':'the Mountain','기':'the Soil','경':'Steel','신':'the Jewel','임':'the Ocean','계':'the Drizzle' };
+  const MULSANG_EN = { '갑':'Tree','을':'Flower','병':'Sun','정':'Candle','무':'Mountain','기':'Garden','경':'Knife','신':'Jewelry','임':'Ocean','계':'Rain' };
   const MULSANG_SHORT_EN = { '갑':'tree','을':'flower','병':'sun','정':'candle','무':'mountain','기':'garden','경':'knife','신':'jewelry','임':'ocean','계':'rain' };
-  const ANIMAL_EN = { '자':'Rat','축':'Ox','인':'Tiger','묘':'Rabbit','진':'Dragon','사':'Snake','오':'Horse','미':'Sheep','신':'Monkey','유':'Rooster','술':'Dog','해':'Pig' };
+  const ANIMAL_EN = { '자':'Mouse','축':'Cow','인':'Tiger','묘':'Rabbit','진':'Dragon','사':'Snake','오':'Horse','미':'Sheep','신':'Monkey','유':'Chicken','술':'Dog','해':'Pig' };
   const SIPSUNG_EN = { '비견':'Friend','겁재':'Rob Wealth','식신':'Eating God','상관':'Hurting Officer','편재':'Indirect Wealth','정재':'Direct Wealth','편관':'Seven Killings','정관':'Direct Officer','편인':'Indirect Resource','정인':'Direct Resource' };
   const ELEM_EN = { '목':'Wood','화':'Fire','토':'Earth','금':'Metal','수':'Water' };
   const SOUND = {
@@ -23,6 +23,7 @@
   function iljuName(ilju, lang) {
     return lang === 'en' ? `${STEM_ROMA[ilju[0]]}-${BRANCH_ROMA[ilju[1]]}` : ilju;
   }
+  function stemName(stem) { return MULSANG_EN[stem]; }
   function typeCode(ilju) { return TYPES[ilju].code; }
   function avatarName(ilju, lang) { return lang === 'en' ? `${TYPES[ilju].code} Type` : ilju; }
   function typeDesc(ilju) { return TYPES[ilju].desc; }
@@ -82,7 +83,7 @@
       setupFind: 'Find it on our site',
       search: 'Search (e.g. ST, Sun Tiger, Tiger)',
       all: 'All',
-      stemGroup: (s) => ({ '갑':'T · Tree','을':'F · Flower','병':'S · Sun','정':'C · Candle','무':'M · Mountain','기':'G · Garden','경':'K · Knife','신':'J · Jewelry','임':'O · Ocean','계':'R · Rain' })[s] + ` (${STEM_ROMA[s]} ${STEM_HANJA[s]})`,
+      stemGroup: (s) => ({ '갑':'T · Tree','을':'F · Flower','병':'S · Sun','정':'C · Candle','무':'M · Mountain','기':'G · Garden','경':'K · Knife','신':'J · Jewelry','임':'O · Ocean','계':'R · Rain' })[s],
       stemTab: (s) => ({ '갑':'Tree','을':'Flower','병':'Sun','정':'Candle','무':'Mountain','기':'Garden','경':'Knife','신':'Jewelry','임':'Ocean','계':'Rain' })[s],
       noPick: 'Nothing chosen yet',
       picked: (g, t) => `Your Type <b>${g}</b> · ${t}`,
@@ -92,5 +93,5 @@
     }
   };
 
-  root.I18N = { TYPES, typeCode, avatarName, typeDesc, UI, SOUND, COMMON, iljuName, iljuHanja, title, sip, elem, dayName, reactions, ANIMAL_EN, MULSANG_EN, SIPSUNG_EN, ELEM_EN };
+  root.I18N = { TYPES, stemName, typeCode, avatarName, typeDesc, UI, SOUND, COMMON, iljuName, iljuHanja, title, sip, elem, dayName, reactions, ANIMAL_EN, MULSANG_EN, SIPSUNG_EN, ELEM_EN };
 })(typeof window !== 'undefined' ? window : globalThis);
