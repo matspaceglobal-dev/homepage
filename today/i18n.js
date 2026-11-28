@@ -7,7 +7,7 @@
   const MULSANG_EN = { '갑':'Tree','을':'Flower','병':'Sun','정':'Candle','무':'Mountain','기':'Garden','경':'Knife','신':'Jewelry','임':'Ocean','계':'Rain' };
   const MULSANG_SHORT_EN = { '갑':'tree','을':'flower','병':'sun','정':'candle','무':'mountain','기':'garden','경':'knife','신':'jewelry','임':'ocean','계':'rain' };
   const ANIMAL_EN = { '자':'Mouse','축':'Cow','인':'Tiger','묘':'Rabbit','진':'Dragon','사':'Snake','오':'Horse','미':'Sheep','신':'Monkey','유':'Chicken','술':'Dog','해':'Pig' };
-  const SIPSUNG_EN = { '비견':'Friend','겁재':'Rob Wealth','식신':'Eating God','상관':'Hurting Officer','편재':'Indirect Wealth','정재':'Direct Wealth','편관':'Seven Killings','정관':'Direct Officer','편인':'Indirect Resource','정인':'Direct Resource' };
+  const SIPSUNG_EN = { '비견':'Friend','겁재':'Rival','식신':'Joy','상관':'Spark','편재':'Big Chance','정재':'Steady Gain','편관':'Pressure','정관':'Duty','편인':'Daydream','정인':'Support' };
   const ELEM_EN = { '목':'Wood','화':'Fire','토':'Earth','금':'Metal','수':'Water' };
   const SOUND = {
     ko: { '자':'찍찍','축':'음매','인':'어흥','묘':'깡총','진':'노라','사':'쉬익','오':'다그닥','미':'메에','신':'우끼끼','유':'꼬꼬','술':'멍','해':'꿀꿀' },
